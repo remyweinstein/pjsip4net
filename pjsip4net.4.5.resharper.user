@@ -1,0 +1,90 @@
+<Configuration>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">True</setting>
+    </boolean>
+  </SettingsComponent>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:Credential.cs" caret="0" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:IConfigurationProvider.cs" caret="45" fromTop="2" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:IIdentifiable.cs" caret="29" fromTop="2" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:Initializable.cs" caret="2413" fromTop="45" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:LogEventArgs.cs" caret="53" fromTop="3" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Calls/f:CallBuilder.cs" caret="150" fromTop="7" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:SIPUriBuilder.cs" caret="82" fromTop="4" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:PJSTRTMarshaler.cs" caret="0" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFAState.cs" caret="293" fromTop="13" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFAWithBackTracking.cs" caret="138" fromTop="6" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFA.cs" caret="342" fromTop="11" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFAWithLambda.cs" caret="117" fromTop="5" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:LoggingConfig.cs" caret="0" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:MediaTrasportSecurityRequirement.cs" caret="19" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:NATEventArgs.cs" caret="314" fromTop="18" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:PagerEventArgs.cs" caret="36" fromTop="2" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:PJSIPErrorException.cs" caret="80" fromTop="4" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:Resource.cs" caret="36" fromTop="2" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:SIPUserAgent.cs" caret="488" fromTop="20" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:TransportType.cs" caret="19" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:TypingEventArgs.cs" caret="19" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:UAConfig.cs" caret="0" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Accounts/f:ClassDiagram1.cd" caret="5969" fromTop="23" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Calls/f:Call.cs" caret="12783" fromTop="22" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Calls/f:ClassDiagram1.cd" caret="680" fromTop="16" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Properties/f:AssemblyInfo.cs" caret="1543" fromTop="41" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="0" fromTop="0" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="13" fromTop="0" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="266" fromTop="11" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="52" fromTop="1" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFAWithBackTracking.cs" caret="138" fromTop="6" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Utils/f:NFAWithLambda.cs" caret="117" fromTop="5" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/f:TypingEventArgs.cs" caret="19" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Calls/f:Call.cs" caret="12783" fromTop="22" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="2835" fromTop="16" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="13" fromTop="0" />
+      <File id="77160365-9A80-4F6A-9BD7-4F0532BE0EB0/d:Properties/f:AssemblyInfo.cs" caret="1485" fromTop="41" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="2835" fromTop="84" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="1387" fromTop="15" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="2474" fromTop="38" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="4025" fromTop="15" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="4025" fromTop="55" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="4025" fromTop="45" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="1199" fromTop="10" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="2359" fromTop="26" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="2678" fromTop="36" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="3309" fromTop="33" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountBuilderTests.cs" caret="266" fromTop="11" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="1449" fromTop="24" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="1449" fromTop="34" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="1449" fromTop="40" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="1449" fromTop="49" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="417" fromTop="22" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="204" fromTop="14" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="1086" fromTop="49" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="1314" fromTop="57" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="1547" fromTop="52" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:EqualsTemplateIdentifiableTests.cs" caret="0" fromTop="0" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:CallBuilderTests.cs" caret="13" fromTop="0" />
+      <File id="3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65/f:AccountTests.cs" caret="52" fromTop="1" />
+    </RecentEdits>
+  </RecentFiles>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="Qualified:pjsip.Interop.pjsua_codec_info">
+      <Item value="priority" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Default">
+      <Item value="TestFixtureSetUp" priority="0" />
+      <Item value="TestFixture" priority="1" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>
