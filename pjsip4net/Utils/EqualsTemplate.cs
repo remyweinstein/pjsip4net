@@ -1,6 +1,8 @@
-﻿namespace pjsip4net.Utils
+﻿using pjsip4net.Core.Interfaces;
+
+namespace pjsip4net.Core.Utils
 {
-    internal static class EqualsTemplate
+    public static class EqualsTemplate
     {
         internal static bool Equals<T>(IIdentifiable<T> left, IIdentifiable<T> right)
         {

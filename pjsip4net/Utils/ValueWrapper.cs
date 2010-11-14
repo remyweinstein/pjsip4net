@@ -1,4 +1,4 @@
-﻿namespace pjsip4net.Utils
+﻿namespace pjsip4net.Core.Utils
 {
     internal class ValueWrapper<T>
         where T : struct

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class TransitionFunction<Q1, S, Q2>
     {

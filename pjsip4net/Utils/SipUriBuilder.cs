@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class SipUriBuilder
     {

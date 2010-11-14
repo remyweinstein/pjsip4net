@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class NfaWithLambda<Q, S> : Nfa<Q, S> where S : class
     {
@@ -22,12 +22,12 @@ namespace pjsip4net.Utils
             if (state != null && IsExists(state.Id))
             {
                 IEnumerable<TransitionFunction<NfaState<Q>, S, NfaState<Q>>> transitions = (from t in TransitionTable
-                                                                                      where
-                                                                                          t.From.Id.Equals(state.Id) &&
-                                                                                          t.TransitionSymbols != null &&
-                                                                                          t.TransitionSymbols.Contains(
-                                                                                              symbol)
-                                                                                      select t).Union(
+                                                                                            where
+                                                                                                t.From.Id.Equals(state.Id) &&
+                                                                                                t.TransitionSymbols != null &&
+                                                                                                t.TransitionSymbols.Contains(
+                                                                                                    symbol)
+                                                                                            select t).Union(
                     from t in TransitionTable.OfType<PredicateTransitionFunction<NfaState<Q>, S, NfaState<Q>>>()
                     where t.From.Id.Equals(state.Id) && t.PredicateLambda != null && t.PredicateLambda(symbol)
                     select (TransitionFunction<NfaState<Q>, S, NfaState<Q>>) t
@@ -81,9 +81,9 @@ namespace pjsip4net.Utils
             if (state != null && IsExists(state.Id))
             {
                 IEnumerable<NfaState<Q>> states = from t in TransitionTable
-                                               where t.From.Id.Equals(state.Id) &&
-                                                     t.TransitionSymbols == null
-                                               select t.To;
+                                                  where t.From.Id.Equals(state.Id) &&
+                                                        t.TransitionSymbols == null
+                                                  select t.To;
 
                 foreach (var st in states)
                 {

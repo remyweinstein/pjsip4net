@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     /// <summary>
     /// This class represents a Nondeterministic finite state machine
@@ -263,7 +263,7 @@ namespace pjsip4net.Utils
         #endregion
     }
 
-    public static class Extensions
+    public static class StateExtensions
     {
         /// <summary>
         /// Remove a state from the list

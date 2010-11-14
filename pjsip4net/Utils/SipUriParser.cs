@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using pjsip4net;
-using pjsip4net.Utils;
 
-namespace DoxWox.SIPUserAgent.Utils
+namespace pjsip4net.Core.Utils
 {
     public enum SipLexem
     {
@@ -29,7 +27,7 @@ namespace DoxWox.SIPUserAgent.Utils
         private readonly HashSet<char> _alfabet;
         private readonly HashSet<char> _numbers;
         private readonly NfaWithBackTracking<SipLexem, char> _stateMachine = new NfaWithBackTracking<SipLexem, char>();
-        private StringBuilder _builder = new StringBuilder();
+        //private StringBuilder _builder = new StringBuilder();
 
         protected SipUriParser()
         {
@@ -286,7 +284,7 @@ namespace DoxWox.SIPUserAgent.Utils
         {
             string str = sipUri.TrimStart('<').TrimEnd('>');
             Helper.GuardIsTrue(str.StartsWith(SipUriBuilder.SIPScheme));
-            Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(str));
+            //Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetBasicApi().pjsua_verify_sip_url(str));
             ParseString(str);
             //while (_statesStack.Count > 0)
             //{
@@ -317,6 +315,10 @@ namespace DoxWox.SIPUserAgent.Utils
 
         public Dictionary<string, string> Parameters { get; set; }
         public Dictionary<string, string> Headers { get; set; }
+        public bool IsValid
+        {
+            get { return _stateMachine.IsAcceptedString(); }
+        }
 
         /// <summary>
         /// NFA with backtracking algorithm

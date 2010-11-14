@@ -1,6 +1,6 @@
 using System;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class RangeChecker<T> where T : IComparable
     {

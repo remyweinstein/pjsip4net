@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     internal class MruCache<TKey, TValue>
         where TKey : class
