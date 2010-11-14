@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Net;
+using pjsip4net.Core.Interfaces;
+using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 using pjsip4net.Transport;
-using pjsip4net.Utils;
+using TransportType=pjsip4net.Core.TransportType;
 
 namespace pjsip4net.Accounts.Dsl
 {
-    public class AccountBuilder
+    public class AccountBuilder : IAccountBuilder
     {
         protected bool _default;
         protected string _login;
@@ -14,55 +17,64 @@ namespace pjsip4net.Accounts.Dsl
         protected bool _publish;
         protected string _registrarDomain;
         protected uint _regTimeout;
-        protected VoIPTransport _transport;
+        protected IVoIPTransport _transport;
+        private IObjectFactory _objectFactory;
+        private IAccountManagerInternal _accountManager;
+        private readonly ILocalRegistry _localRegistry;
 
-        internal AccountBuilder()
+        internal AccountBuilder(IObjectFactory objectFactory, IAccountManagerInternal accountManager, ILocalRegistry localRegistry)
         {
+            Helper.GuardNotNull(objectFactory);
+            Helper.GuardNotNull(accountManager);
+            Helper.GuardNotNull(localRegistry);
+            _objectFactory = objectFactory;
+            _accountManager = accountManager;
+            _localRegistry = localRegistry;
         }
 
-        public AccountBuilder SetLogin(string login)
+        public IAccountBuilder WithExtension(string login)
         {
             _login = login;
             return this;
         }
 
-        public AccountBuilder SetPassword(string password)
+        public IAccountBuilder WithPassword(string password)
         {
             _password = password;
             return this;
         }
 
-        public AccountBuilder SetDomain(string domain)
+        public IAccountBuilder At(string domain)
         {
             _registrarDomain = domain;
             return this;
         }
 
-        public AccountBuilder SetPort(string port)
+        public IAccountBuilder Through(string port)
         {
             _port = port;
             return this;
         }
 
-        public AccountBuilder SetTransport(VoIPTransport transport)
+        public IAccountBuilder Via(IVoIPTransport transport)
         {
             _transport = transport;
             return this;
         }
 
-        public AccountBuilder SetDefault(bool isDefault)
+        public IAccountBuilder Default()
         {
-            _default = isDefault;
+            _default = true;
             return this;
         }
 
-        public AccountBuilder SetPublish(bool publishPresence)
+        public IAccountBuilder PublishingPresence()
         {
-            _publish = publishPresence;
+            _publish = true;
             return this;
         }
 
-        public AccountBuilder SetRegistrationTimeout(uint registrationTimeout)
+        public IAccountBuilder WithRegistrationTimeout(uint registrationTimeout)
         {
             _regTimeout = registrationTimeout;
             return this;
@@ -82,7 +94,7 @@ namespace pjsip4net.Accounts.Dsl
                 sb.AppendExtension(_login).AppendDomain(_registrarDomain);
                 if (!string.IsNullOrEmpty(_port))
                     sb.AppendPort(_port);
-                _transport = _transport ?? SipUserAgent.Instance.SipTransport;
+                _transport = _transport ?? _localRegistry.SipTransport;
                 if (_transport is TcpTransport)
                     sb.AppendTransportSuffix(TransportType.Tcp);
                 else if (_transport is TlsTransport)
@@ -112,100 +124,102 @@ namespace pjsip4net.Accounts.Dsl
 
         protected virtual Account CreateAccount()
         {
-            return new Account(false);
+            var account = _objectFactory.Create<Account>();
+            account.IsLocal = false;
+            return account;
         }
 
         protected virtual void InternalRegister(Account account)
         {
-            SingletonHolder<IAccountManagerInternal>.Instance.RegisterAccount(account, _default);
+            _accountManager.RegisterAccount(account, _default);
         }
     }
 
-    public class WithAccountBuilderExpression
-    {
-        private readonly AccountBuilder _builder;
+    //public class WithAccountBuilderExpression
+    //{
+    //    private readonly AccountBuilder _builder;
 
-        internal WithAccountBuilderExpression(AccountBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    internal WithAccountBuilderExpression(AccountBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public AtAccountBuilderExpression With(string login, string password)
-        {
-            return
-                new AtAccountBuilderExpression(_builder.SetLogin(login).SetPassword(password));
-        }
+    //    public AtAccountBuilderExpression With(string login, string password)
+    //    {
+    //        return
+    //            new AtAccountBuilderExpression(_builder.SetLogin(login).SetPassword(password));
+    //    }
 
-        public AtAccountBuilderExpression With(string login, string password, uint registrationTimeout)
-        {
-            return
-                new AtAccountBuilderExpression(
-                    _builder.SetLogin(login).SetPassword(password).SetRegistrationTimeout(registrationTimeout));
-        }
-    }
+    //    public AtAccountBuilderExpression With(string login, string password, uint registrationTimeout)
+    //    {
+    //        return
+    //            new AtAccountBuilderExpression(
+    //                _builder.SetLogin(login).SetPassword(password).SetRegistrationTimeout(registrationTimeout));
+    //    }
+    //}
 
-    public class AtAccountBuilderExpression
-    {
-        private readonly AccountBuilder _builder;
+    //public class AtAccountBuilderExpression
+    //{
+    //    private readonly AccountBuilder _builder;
 
-        internal AtAccountBuilderExpression(AccountBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    internal AtAccountBuilderExpression(AccountBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public ThroughAccountBuilderExpression At(string domain)
-        {
-            return new ThroughAccountBuilderExpression(_builder.SetDomain(domain));
-        }
-    }
+    //    public ThroughAccountBuilderExpression At(string domain)
+    //    {
+    //        return new ThroughAccountBuilderExpression(_builder.SetDomain(domain));
+    //    }
+    //}
 
-    public class ThroughAccountBuilderExpression
-    {
-        private readonly AccountBuilder _builder;
+    //public class ThroughAccountBuilderExpression
+    //{
+    //    private readonly AccountBuilder _builder;
 
-        internal ThroughAccountBuilderExpression(AccountBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    internal ThroughAccountBuilderExpression(AccountBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public OverAccountBuilderExpression Through(string port)
-        {
-            return new OverAccountBuilderExpression(_builder.SetPort(port));
-        }
-    }
+    //    public OverAccountBuilderExpression Through(string port)
+    //    {
+    //        return new OverAccountBuilderExpression(_builder.SetPort(port));
+    //    }
+    //}
 
-    public class OverAccountBuilderExpression
-    {
-        private readonly AccountBuilder _builder;
+    //public class OverAccountBuilderExpression
+    //{
+    //    private readonly AccountBuilder _builder;
 
-        internal OverAccountBuilderExpression(AccountBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    internal OverAccountBuilderExpression(AccountBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public GoAccountBuilderExpression Over(VoIPTransport transport)
-        {
-            return new GoAccountBuilderExpression(_builder.SetTransport(transport));
-        }
-    }
+    //    public GoAccountBuilderExpression Over(VoIPTransport transport)
+    //    {
+    //        return new GoAccountBuilderExpression(_builder.SetTransport(transport));
+    //    }
+    //}
 
-    public class GoAccountBuilderExpression
-    {
-        private readonly AccountBuilder _builder;
+    //public class GoAccountBuilderExpression
+    //{
+    //    private readonly AccountBuilder _builder;
 
-        internal GoAccountBuilderExpression(AccountBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    internal GoAccountBuilderExpression(AccountBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public Account Go(bool isDefault, bool publishPresence)
-        {
-            return _builder.SetDefault(isDefault).SetPublish(publishPresence).Register();
-        }
-    }
+    //    public Account Go(bool isDefault, bool publishPresence)
+    //    {
+    //        return _builder.SetDefault(isDefault).SetPublish(publishPresence).Register();
+    //    }
+    //}
 }

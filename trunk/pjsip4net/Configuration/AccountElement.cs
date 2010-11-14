@@ -108,17 +108,17 @@ namespace pjsip4net.Configuration
             get { return _properties; }
         }
 
-        public Account CreateAccount()
-        {
-            var account = new Account(false, IsDefault);
-            using (account.InitializationScope())
-            {
-                account.AccountId = AccountId;
-                account.RegistrarUri = RegistrarUri;
-                account.Credential = new NetworkCredential(UserName, Password, Realm);
-                account.PublishPresence = PublishPresence;
-            }
-            return account;
-        }
+        //public Account CreateAccount()
+        //{
+        //    var account = new Account(false, IsDefault);
+        //    using (account.InitializationScope())
+        //    {
+        //        account.AccountId = AccountId;
+        //        account.RegistrarUri = RegistrarUri;
+        //        account.Credential = new NetworkCredential(UserName, Password, Realm);
+        //        account.PublishPresence = PublishPresence;
+        //    }
+        //    return account;
+        //}
     }
 }

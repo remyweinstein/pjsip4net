@@ -1,28 +1,16 @@
 ﻿using System;
-using pjsip.Interop;
+using pjsip4net.Core.Data;
+using pjsip4net.Core.Data.Events;
 
 namespace pjsip4net
 {
-    public enum NatType
-    {
-        Unknown,
-        ErrorUnknown,
-        Open,
-        Blocked,
-        SymmetricUdp,
-        FullCone,
-        Symmetric,
-        Restricted,
-        PortRestricted
-    }
-
     public class NatEventArgs : EventArgs
     {
-        internal NatEventArgs(pj_stun_nat_detect_result result)
+        internal NatEventArgs(NatDetected result)
         {
-            StatusText = result.status_text;
-            NatType = (NatType) result.nat_type;
-            NatTypeName = result.nat_type_name;
+            StatusText = result.StatusText;
+            NatType = result.NatType;
+            NatTypeName = result.NatName;
         }
 
         public string StatusText { get; set; }

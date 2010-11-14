@@ -1,40 +1,50 @@
 ﻿using pjsip4net.Accounts;
 using pjsip4net.Calls;
-using pjsip4net.Utils;
+using pjsip4net.Core;
+using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM.Dsl
 {
-    public class MessageBuilder
+    public class DefaultMessageBuilder : IMessageBuilder
     {
         private readonly SipUriBuilder _builder = new SipUriBuilder();
         private string _body;
         private Account _from;
+        private Call _dialog;
+        private IImManager _userAgent;
 
-        public MessageBuilder SetExtension(string extension)
+        public DefaultMessageBuilder(IImManager userAgent)
+        {
+            Helper.GuardNotNull(userAgent);
+            _userAgent = userAgent;
+        }
+
+        public IMessageBuilder To(string extension)
         {
             _builder.AppendExtension(extension);
             return this;
         }
 
-        public MessageBuilder SetDomain(string domain)
+        public IMessageBuilder At(string domain)
         {
             _builder.AppendDomain(domain);
             return this;
         }
 
-        public MessageBuilder SetPort(string port)
+        public IMessageBuilder Through(string port)
         {
             _builder.AppendPort(port);
             return this;
         }
 
-        public MessageBuilder SetBody(string body)
+        public IMessageBuilder WithBody(string body)
         {
             _body = body;
             return this;
         }
 
-        public MessageBuilder SetAccount(Account account)
+        public IMessageBuilder From(Account account)
         {
             Helper.GuardNotNull(account);
             Helper.GuardNotNull(account.Transport);
@@ -44,176 +54,191 @@ namespace pjsip4net.IM.Dsl
             return this;
         }
 
-        public void SendMessage()
-        {
-            //pj_str_t to = new pj_str_t(_builder.ToString());
-            //pj_str_t mime = new pj_str_t("plain/text");
-            //pj_str_t content = new pj_str_t(_body);
-            SipUserAgent.Instance.SendMessage(_from, _body, _builder.ToString());
-            //Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_im_send(_from.Id, ref to, ref mime, ref content, null, IntPtr.Zero));
-        }
-
-        public void SendTyping(bool isTyping)
-        {
-            //pj_str_t to = new pj_str_t(_builder.ToString());
-            //Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_im_typing(_from.Id, ref to, Convert.ToInt32(isTyping), null));
-            SipUserAgent.Instance.SendTyping(_from, _builder.ToString(), isTyping);
-        }
-    }
-
-    public class ToMessageBuilderExpression
-    {
-        private readonly MessageBuilder _builder;
-
-        public ToMessageBuilderExpression(MessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public AtMessageBuilderExpression To(string extension)
-        {
-            return new AtMessageBuilderExpression(_builder.SetExtension(extension));
-        }
-    }
-
-    public class AtMessageBuilderExpression
-    {
-        private readonly MessageBuilder _builder;
-
-        public AtMessageBuilderExpression(MessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public ThroughMessageBuilderExpression At(string domain)
-        {
-            return new ThroughMessageBuilderExpression(_builder.SetDomain(domain));
-        }
-    }
-
-    public class ThroughMessageBuilderExpression
-    {
-        private readonly MessageBuilder _builder;
-
-        public ThroughMessageBuilderExpression(MessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public FromMessageBuilderExpression Through(string port)
-        {
-            return new FromMessageBuilderExpression(_builder.SetPort(port));
-        }
-    }
-
-    public class FromMessageBuilderExpression
-    {
-        private readonly MessageBuilder _builder;
-
-        public FromMessageBuilderExpression(MessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public FinalMessageBuilderExpression From(Account account)
-        {
-            return new FinalMessageBuilderExpression(_builder.SetAccount(account));
-        }
-    }
-
-    public class FinalMessageBuilderExpression
-    {
-        private readonly MessageBuilder _builder;
-
-        public FinalMessageBuilderExpression(MessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public void Typing(bool isTyping)
-        {
-            _builder.SendTyping(isTyping);
-        }
-
-        public void Go(string message)
-        {
-            _builder.SetBody(message).SendMessage();
-        }
-    }
-
-    public class InDialogMessageBuilder
-    {
-        private string _body;
-        private Call _call;
-
-        public InDialogMessageBuilder SetCall(Call call)
+        public IMessageBuilder InDialogOf(Call call)
         {
             Helper.GuardNotNull(call);
-            Helper.GuardPositiveInt(call.Id);
-            _call = call;
+            _dialog = call;
             return this;
         }
 
-        public InDialogMessageBuilder SetBody(string body)
+        public void Send()
         {
-            _body = body;
-            return this;
+            if (_dialog == null)
+                _userAgent.SendMessage(_from, _body, _builder.ToString());
+            else
+                _userAgent.SendMessageInDialog(_dialog, _body);
         }
 
-        public void SendMessage()
+        public void SendTyping()
         {
-            //pj_str_t mime = new pj_str_t("plain/text");
-            //pj_str_t content = new pj_str_t(_body);
-            //Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_send_im(_call.Id, ref mime, ref content, null, IntPtr.Zero));
-            SipUserAgent.Instance.SendMessageInDialog(_call, _body);
+            if (_dialog == null)
+                _userAgent.SendTyping(_from, _builder.ToString(), true);
+            else
+                _userAgent.SendTypingInDialog(_dialog, true);
         }
-
-        public void SendTyping(bool isTyping)
+        
+        public void SendFinishedTyping()
         {
-            //Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_send_typing_ind(_call.Id, Convert.ToInt32(isTyping), null));
-            SipUserAgent.Instance.SendTypingInDialog(_call, isTyping);
-        }
-    }
-
-    public class OfMessageBuilderExpression
-    {
-        private readonly InDialogMessageBuilder _builder;
-
-        public OfMessageBuilderExpression(InDialogMessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
-
-        public FinalInDialogMessageBuilderExpression Of(Call call)
-        {
-            return new FinalInDialogMessageBuilderExpression(_builder.SetCall(call));
+            if (_dialog == null)
+                _userAgent.SendTyping(_from, _builder.ToString(), false);
+            else
+                _userAgent.SendTypingInDialog(_dialog, false);
         }
     }
 
-    public class FinalInDialogMessageBuilderExpression
-    {
-        private readonly InDialogMessageBuilder _builder;
+    //public class ToMessageBuilderExpression
+    //{
+    //    private readonly MessageBuilder _builder;
 
-        public FinalInDialogMessageBuilderExpression(InDialogMessageBuilder builder)
-        {
-            Helper.GuardNotNull(builder);
-            _builder = builder;
-        }
+    //    public ToMessageBuilderExpression(MessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
 
-        public void Typing(bool isTyping)
-        {
-            _builder.SendTyping(isTyping);
-        }
+    //    public AtMessageBuilderExpression To(string extension)
+    //    {
+    //        return new AtMessageBuilderExpression(_builder.SetExtension(extension));
+    //    }
+    //}
 
-        public void Go(string message)
-        {
-            _builder.SetBody(message).SendMessage();
-        }
-    }
+    //public class AtMessageBuilderExpression
+    //{
+    //    private readonly MessageBuilder _builder;
+
+    //    public AtMessageBuilderExpression(MessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public ThroughMessageBuilderExpression At(string domain)
+    //    {
+    //        return new ThroughMessageBuilderExpression(_builder.SetDomain(domain));
+    //    }
+    //}
+
+    //public class ThroughMessageBuilderExpression
+    //{
+    //    private readonly MessageBuilder _builder;
+
+    //    public ThroughMessageBuilderExpression(MessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public FromMessageBuilderExpression Through(string port)
+    //    {
+    //        return new FromMessageBuilderExpression(_builder.SetPort(port));
+    //    }
+    //}
+
+    //public class FromMessageBuilderExpression
+    //{
+    //    private readonly MessageBuilder _builder;
+
+    //    public FromMessageBuilderExpression(MessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public FinalMessageBuilderExpression From(Account account)
+    //    {
+    //        return new FinalMessageBuilderExpression(_builder.SetAccount(account));
+    //    }
+    //}
+
+    //public class FinalMessageBuilderExpression
+    //{
+    //    private readonly MessageBuilder _builder;
+
+    //    public FinalMessageBuilderExpression(MessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public void Typing(bool isTyping)
+    //    {
+    //        _builder.SendTyping(isTyping);
+    //    }
+
+    //    public void Go(string message)
+    //    {
+    //        _builder.SetBody(message).SendMessage();
+    //    }
+    //}
+
+    //public class InDialogMessageBuilder
+    //{
+    //    private string _body;
+    //    private Call _call;
+
+    //    public InDialogMessageBuilder SetCall(Call call)
+    //    {
+    //        Helper.GuardNotNull(call);
+    //        Helper.GuardPositiveInt(call.Id);
+    //        _call = call;
+    //        return this;
+    //    }
+
+    //    public InDialogMessageBuilder SetBody(string body)
+    //    {
+    //        _body = body;
+    //        return this;
+    //    }
+
+    //    public void SendMessage()
+    //    {
+    //        //pj_str_t mime = new pj_str_t("plain/text");
+    //        //pj_str_t content = new pj_str_t(_body);
+    //        //Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetCallApi().pjsua_call_send_im(_call.Id, ref mime, ref content, null, IntPtr.Zero));
+    //        SipUserAgent.Instance.SendMessageInDialog(_call, _body);
+    //    }
+
+    //    public void SendTyping(bool isTyping)
+    //    {
+    //        //Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetCallApi().pjsua_call_send_typing_ind(_call.Id, Convert.ToInt32(isTyping), null));
+    //        SipUserAgent.Instance.SendTypingInDialog(_call, isTyping);
+    //    }
+    //}
+
+    //public class OfMessageBuilderExpression
+    //{
+    //    private readonly InDialogMessageBuilder _builder;
+
+    //    public OfMessageBuilderExpression(InDialogMessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public FinalInDialogMessageBuilderExpression Of(Call call)
+    //    {
+    //        return new FinalInDialogMessageBuilderExpression(_builder.SetCall(call));
+    //    }
+    //}
+
+    //public class FinalInDialogMessageBuilderExpression
+    //{
+    //    private readonly InDialogMessageBuilder _builder;
+
+    //    public FinalInDialogMessageBuilderExpression(InDialogMessageBuilder builder)
+    //    {
+    //        Helper.GuardNotNull(builder);
+    //        _builder = builder;
+    //    }
+
+    //    public void Typing(bool isTyping)
+    //    {
+    //        _builder.SendTyping(isTyping);
+    //    }
+
+    //    public void Go(string message)
+    //    {
+    //        _builder.SetBody(message).SendMessage();
+    //    }
+    //}
 }

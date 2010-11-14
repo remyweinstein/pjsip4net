@@ -1,6 +1,7 @@
 using System.Diagnostics;
-using pjsip.Interop;
-using pjsip4net.Utils;
+using pjsip4net.Core.Data;
+using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
@@ -13,15 +14,15 @@ namespace pjsip4net.Calls
             : base(owner)
         {
             Debug.WriteLine("Call " + _owner.Call.Id + " NullInviteState");
-            _owner.InviteState = CallInviteState.None;
+            _owner.InviteState = InviteState.None;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
             else
                 _owner.ChangeState(new CallingInviteState(_owner)); //after INVITE is sent
@@ -40,21 +41,21 @@ namespace pjsip4net.Calls
         {
             Debug.WriteLine("Call " + _owner.Call.Id + " CallingInviteState");
             if (!_owner.Call.IsIncoming)
-                SingletonHolder<ICallManagerInternal>.Instance.RaiseRingEvent(_owner.Call, true);
+                _owner.CallManager.RaiseRingEvent(_owner.Call, true);
             _owner.IsRinging = true;
-            _owner.InviteState = CallInviteState.Calling;
+            _owner.InviteState = InviteState.Calling;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Confirmed)
                 _owner.ChangeState(new ConfirmedInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONNECTING)
+            else if (info.State == InviteState.Connecting)
                 _owner.ChangeState(new ConnectingInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            else if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
         }
 
@@ -72,21 +73,21 @@ namespace pjsip4net.Calls
             Debug.WriteLine("Call " + _owner.Call.Id + " IncomingInviteState");
             //SingletonHolder<ICallManagerImpl>.Instance.RaiseRingEvent(_owner.Call, true);
             _owner.IsRinging = true;
-            _owner.InviteState = CallInviteState.Incoming;
+            _owner.InviteState = InviteState.Incoming;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Confirmed)
                 _owner.ChangeState(new ConfirmedInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONNECTING)
+            else if (info.State == InviteState.Connecting)
                 _owner.ChangeState(new ConnectingInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_EARLY)
+            else if (info.State == InviteState.Early)
                 _owner.ChangeState(new EarlyInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            else if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
         }
 
@@ -102,19 +103,19 @@ namespace pjsip4net.Calls
             : base(owner)
         {
             Debug.WriteLine("Call " + _owner.Call.Id + " EarlyInviteState");
-            _owner.InviteState = CallInviteState.Early;
+            _owner.InviteState = InviteState.Early;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Confirmed)
                 _owner.ChangeState(new ConfirmedInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONNECTING)
+            else if (info.State == InviteState.Connecting)
                 _owner.ChangeState(new ConnectingInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            else if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
         }
 
@@ -135,17 +136,17 @@ namespace pjsip4net.Calls
             //    SingletonHolder<ICallManagerImpl>.Instance.RaiseRingEvent(_owner.Call, false);
             //    _owner.IsRinging = false;
             //}
-            _owner.InviteState = CallInviteState.Connecting;
+            _owner.InviteState = InviteState.Connecting;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Confirmed)
                 _owner.ChangeState(new ConfirmedInviteState(_owner));
-            else if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            else if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
         }
 
@@ -163,19 +164,19 @@ namespace pjsip4net.Calls
             Debug.WriteLine("Call " + _owner.Call.Id + " ConfirmedInviteState");
             if (_owner.IsRinging)
             {
-                SingletonHolder<ICallManagerInternal>.Instance.RaiseRingEvent(_owner.Call, false);
+                _owner.CallManager.RaiseRingEvent(_owner.Call, false);
                 _owner.IsRinging = false;
             }
             _owner.IsConfirmed = true;
-            _owner.InviteState = CallInviteState.Confirmed;
+            _owner.InviteState = InviteState.Confirmed;
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
-            pjsua_call_info info = _owner.Call.GetCallInfo();
-            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
+            CallInfo info = _owner.Call.GetCallInfo();
+            if (info.State == InviteState.Disconnected)
                 _owner.ChangeState(new DisconnectedInviteState(_owner));
         }
 
@@ -193,19 +194,19 @@ namespace pjsip4net.Calls
             Debug.WriteLine("Call " + _owner.Call.Id + " DisconnectedInviteState");
             _owner.IsConfirmed = false;
             _owner.IsDisconnected = true;
-            _owner.InviteState = CallInviteState.Disconnected;
+            _owner.InviteState = InviteState.Disconnected;
             if (_owner.IsRinging)
             {
-                SingletonHolder<ICallManagerInternal>.Instance.RaiseRingEvent(_owner.Call, false);
+                _owner.CallManager.RaiseRingEvent(_owner.Call, false);
                 _owner.IsRinging = false;
             }
             if (!_owner.Call.HasMedia)
-                SingletonHolder<ICallManagerInternal>.Instance.TerminateCall(_owner.Call);
+                _owner.CallManager.TerminateCall(_owner.Call);
         }
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
         }
 
