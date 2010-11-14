@@ -1,6 +1,6 @@
 using System;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class NfaState<Q> : AbstractState<StateMachine>
     {
@@ -25,7 +25,7 @@ namespace pjsip4net.Utils
 
         #region Overrides of AbstractState
 
-        internal override void StateChanged()
+        public override void StateChanged()
         {
             //if (Act != null) Act();
         }

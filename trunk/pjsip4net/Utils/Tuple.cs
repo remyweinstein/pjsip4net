@@ -1,6 +1,6 @@
-﻿namespace pjsip4net.Utils
+﻿namespace pjsip4net.Core.Utils
 {
-    internal class Tuple<T1, T2>
+    public class Tuple<T1, T2>
     {
         public Tuple(T1 part1, T2 part2)
         {

@@ -1,8 +1,8 @@
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public abstract class AbstractState
     {
-        internal abstract void StateChanged();
+        public abstract void StateChanged();
     }
 
     public abstract class AbstractState<T> : AbstractState where T : StateMachine

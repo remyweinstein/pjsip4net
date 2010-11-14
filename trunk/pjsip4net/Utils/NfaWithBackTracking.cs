@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class NfaWithBackTracking<Q, S> : Nfa<Q, S>
     {

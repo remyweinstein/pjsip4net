@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public static class Helper
     {

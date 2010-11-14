@@ -1,6 +1,6 @@
 using System;
 
-namespace pjsip4net.Utils
+namespace pjsip4net.Core.Utils
 {
     public class StateMachine
     {
@@ -19,7 +19,7 @@ namespace pjsip4net.Utils
                 _state.StateChanged();
         }
 
-        internal void ChangeState(AbstractState newState)
+        public void ChangeState(AbstractState newState)
         {
             Helper.GuardNotNull(newState);
             _state = newState;
