@@ -1,6 +1,7 @@
 using System;
 using System.Configuration;
-using pjsip4net.Utils;
+using pjsip4net.Core;
+using pjsip4net.Core.Utils;
 
 namespace pjsip4net.Configuration
 {
@@ -10,7 +11,7 @@ namespace pjsip4net.Configuration
         {
             try
             {
-                Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(value.ToString()));
+                Helper.GuardIsTrue(new SipUriParser(value.ToString()).IsValid);
             }
             catch (PjsipErrorException ex)
             {

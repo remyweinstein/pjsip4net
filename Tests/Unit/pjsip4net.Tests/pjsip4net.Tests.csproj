@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=1.1.0.188, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Dependencies\AutoMapper\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Dependencies\NUnit\nunit.framework.dll</HintPath>
@@ -57,6 +61,11 @@
     <Compile Include="AccountTests.cs" />
     <Compile Include="CallBuilderTests.cs" />
     <Compile Include="EqualsTemplateIdentifiableTests.cs" />
+    <Compile Include="given_a_castle_container.cs" />
+    <Compile Include="given_a_configure.cs" />
+    <Compile Include="given_a_default_component_configurator.cs" />
+    <Compile Include="given_a_simple_container.cs" />
+    <Compile Include="MappingTests.cs" />
     <Compile Include="MessageBuilderTest.cs" />
     <Compile Include="MRUCacheTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,9 +73,13 @@
     <Compile Include="UAConfigTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\pjsip.Interop\pjsip.Interop.csproj">
-      <Project>{0AEA8B23-5E46-4923-81B5-7755BA914750}</Project>
-      <Name>pjsip.Interop</Name>
+    <ProjectReference Include="..\..\..\pjsip4net.Container.Castle\pjsip4net.Container.Castle.csproj">
+      <Project>{3502E166-26B1-4A7B-AB50-5CC8BAF0019E}</Project>
+      <Name>pjsip4net.Container.Castle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\pjsip4net.Core\pjsip4net.Core.csproj">
+      <Project>{DAB611F8-F9B2-49AE-8496-BA98F99BA337}</Project>
+      <Name>pjsip4net.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\pjsip4net\pjsip4net.csproj">
       <Project>{77160365-9A80-4F6A-9BD7-4F0532BE0EB0}</Project>

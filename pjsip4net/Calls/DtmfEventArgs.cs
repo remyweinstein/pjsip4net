@@ -1,5 +1,5 @@
 ﻿using System;
-using pjsip4net.Utils;
+using pjsip4net.Core.Utils;
 
 namespace pjsip4net.Calls
 {

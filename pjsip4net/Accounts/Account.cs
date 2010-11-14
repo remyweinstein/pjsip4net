@@ -2,23 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using pjsip.Interop;
-using pjsip4net.Accounts.Dsl;
-using pjsip4net.Transport;
-using pjsip4net.Utils;
+using pjsip4net.Core;
+using pjsip4net.Core.Data;
+using pjsip4net.Core.Interfaces;
+using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Accounts
 {
     public class Account : Initializable, IIdentifiable<Account>
     {
-        private readonly bool _isLocal;
+        private bool _isLocal;
         private readonly object _lock = new object();
-        private readonly PjstrArrayWrapper _proxies;
+        //private readonly PjstrArrayWrapper _proxies;
         private readonly RegistrationSession _session;
-        internal pjsua_acc_config _config = new pjsua_acc_config();
+        internal AccountConfig _config;
         private uint _lockCount;
-        private VoIPTransport _transport;
+        private IVoIPTransport _transport;
         internal bool Default;
+        //private IBasicApiProvider _basicApiProvider;
+        //private IAccountApiProvider _accountApiProvider;
+        private IAccountManagerInternal _manager;
 
         #region Properties
 
@@ -27,24 +31,14 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.id;
+                return _config.Id;
             }
             set
             {
                 GuardDisposed();
-                //bool modify = false;
-                //try
-                //{
                 GuardNotInitializing();
-                //}
-                //catch (InvalidOperationException)
-                //{
-                //    modify = true;
-                //}
 
-                _config.id = new pj_str_t(value);
-                //if (modify)
-                //    Modify();
+                _config.Id = value;
             }
         }
 
@@ -53,26 +47,20 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.cred_count > 0 ? _config.cred_info[0].ToNetworkCredential() : null;
+                return _config.Credentials.Count > 0 ? _config.Credentials[0] : null;
             }
             set
             {
                 GuardDisposed();
-                //bool modify = false;
-                //try
-                //{
                 GuardNotInitializing();
-                //}
-                //catch (InvalidOperationException)
-                //{
-                //    modify = true;
-                //}
                 if (value != null)
                 {
-                    _config.cred_info[0] = value.ToPjsipCredentialsInfo();
-                    _config.cred_count = 1;
+                    if (_config.Credentials.Count == 0)
+                        _config.Credentials.Add(value);
+                    else
+                        _config.Credentials[0] = value;
                 }
-                else _config.cred_count = 0;
+                else _config.Credentials.Clear();
                 //if (modify)
                 //    Modify();
             }
@@ -83,13 +71,13 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return (SrtpRequirement) _config.use_srtp;
+                return _config.UseSrtp;
             }
             set
             {
                 GuardDisposed();
                 GuardNotInitializing();
-                _config.use_srtp = (pjmedia_srtp_use) value;
+                _config.UseSrtp = value;
             }
         }
 
@@ -98,13 +86,13 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.srtp_secure_signaling;
+                return _config.SrtpSecureSignaling;
             }
             set
             {
                 GuardDisposed();
                 GuardNotInitializing();
-                _config.srtp_secure_signaling = value;
+                _config.SrtpSecureSignaling = value;
             }
         }
 
@@ -115,6 +103,10 @@ namespace pjsip4net.Accounts
                 GuardDisposed();
                 return _isLocal;
             }
+            internal set
+            {
+                _isLocal = value;
+            }
         }
 
         public int Priority
@@ -122,7 +114,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.priority;
+                return _config.Priority;
             }
             set
             {
@@ -137,7 +129,7 @@ namespace pjsip4net.Accounts
                 //    modify = true;
                 //}
 
-                _config.priority = value;
+                _config.Priority = value;
                 //if (modify)
                 //    Modify();
             }
@@ -148,7 +140,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.reg_uri;
+                return _config.RegUri;
             }
             set
             {
@@ -162,22 +154,13 @@ namespace pjsip4net.Accounts
                 //{
                 //    modify = true;
                 //}
+                var parser = new SipUriParser(value);
+                Helper.GuardIsTrue(parser.IsValid);
 
-                _config.reg_uri = new pj_str_t(value);
+                _config.RegUri = value;
 
-                string s = value.Remove(0, 4);
-                if (s.Contains(":"))
-                {
-                    string[] splits = s.Split(new[] {':'});
-                    RegistrarDomain = splits[0];
-                    RegistrarPort = splits[1].Contains(";") ? splits[1].Split(new[] {';'})[0] : splits[1];
-                }
-                else
-                {
-                    RegistrarDomain = s;
-                    RegistrarPort = "5060";
-                }
-
+                RegistrarDomain = parser.Domain;
+                RegistrarPort = parser.Port;
                 //if (modify)
                 //    Modify();
             }
@@ -187,7 +170,7 @@ namespace pjsip4net.Accounts
 
         public string RegistrarPort { get; internal set; }
 
-        public virtual VoIPTransport Transport
+        public virtual IVoIPTransport Transport
         {
             get { return _transport; }
             internal set
@@ -204,7 +187,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.publish_enabled == 1;
+                return _config.IsPublishEnabled;
             }
             set
             {
@@ -219,7 +202,7 @@ namespace pjsip4net.Accounts
                 //    modify = true;
                 //}
 
-                _config.publish_enabled = Convert.ToInt32(value);
+                _config.IsPublishEnabled = value;
                 //if (modify)
                 //    Modify();
             }
@@ -230,7 +213,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _proxies;
+                return _config.Proxy;
             }
         }
 
@@ -239,7 +222,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.reg_timeout;
+                return _config.RegTimeout;
             }
             set
             {
@@ -254,7 +237,7 @@ namespace pjsip4net.Accounts
                 //    modify = true;
                 //}
 
-                _config.reg_timeout = value;
+                _config.RegTimeout = value;
                 //if (modify)
                 //    Modify();
             }
@@ -265,7 +248,7 @@ namespace pjsip4net.Accounts
             get
             {
                 GuardDisposed();
-                return _config.ka_interval;
+                return _config.KaInterval;
             }
             set
             {
@@ -280,7 +263,7 @@ namespace pjsip4net.Accounts
                 //    modify = true;
                 //}
 
-                _config.ka_interval = value;
+                _config.KaInterval = value;
                 //if (modify)
                 //    Modify();
             }
@@ -292,30 +275,30 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? (bool?) (info.online_status == 1) : null;
+                return !Equals(info, null) ? (bool?) (info.OnlineStatus == 1) : null;
             }
             //set
             //{
             //    GuardDisposed();
             //    if (IsRegistered)
             //    {
-            //        //Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_set_online_status(Id,
+            //        //Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi().pjsua_acc_set_online_status(Id,
             //        //                                                                                      Convert.
             //        //                                                                                          ToInt32(
             //        //                                                                                          value.
             //        //                                                                                              Value)));
             //        pjrpid_element rpid = new pjrpid_element
             //                                  {
-            //                                      activity = pjrpid_activity.PJRPID_ACTIVITY_UNKNOWN,
+            //                                      activity = pjrpid_activity.PjrpidActivityUnknown,
             //                                      note = new pj_str_t(value.Value ? "online" : "offline")
             //                                  };
-            //        Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi()
+            //        Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi()
             //            .pjsua_acc_set_online_status2(Id, Convert.ToInt32(value.Value), ref rpid));
             //        //if (!value.Value)
             //        //{
             //        //    pj_str_t stateStr = new pj_str_t();
             //        //    pj_str_t reason = new pj_str_t();
-            //        //    Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_pres_notify(Id, IntPtr.Zero,
+            //        //    Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetImApi().pjsua_pres_notify(Id, IntPtr.Zero,
             //        //                                                                           pjsip_evsub_state.
             //        //                                                                               PJSIP_EVSUB_STATE_TERMINATED,
             //        //                                                                           ref stateStr, ref reason,
@@ -331,7 +314,7 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? info.online_status_text : "";
+                return !Equals(info, null) ? info.OnlineStatusText : "";
             }
         }
 
@@ -350,7 +333,7 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? (bool?) (info.is_default == 1) : null;
+                return !Equals(info, null) ? (bool?) (info.IsDefault == 1) : null;
             }
         }
 
@@ -360,7 +343,7 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? info.acc_uri : "";
+                return !Equals(info, null) ? info.AccUri : "";
             }
         }
 
@@ -370,7 +353,7 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? (bool?) (info.has_registration == 1) : null;
+                return !Equals(info, null) ? (bool?) (info.HasRegistration == 1) : null;
             }
         }
 
@@ -380,17 +363,17 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? (int?) info.expires : null;
+                return !Equals(info, null) ? (int?) info.Expires : null;
             }
         }
 
-        public int StatusCode
+        public SipStatusCode? StatusCode
         {
             get
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? (int) info.status : 0;
+                return !Equals(info, null) ? (SipStatusCode?) info.Status : null;
             }
         }
 
@@ -400,7 +383,7 @@ namespace pjsip4net.Accounts
             {
                 GuardDisposed();
                 var info = GetAccountInfo();
-                return !Equals(info, default(pjsua_acc_info)) ? info.status_text : "";
+                return !Equals(info, null) ? info.StatusText : "";
             }
         }
 
@@ -419,72 +402,63 @@ namespace pjsip4net.Accounts
 
         #region Methods
 
-        public Account(bool local)
-            : this(local, false)
+        internal Account(IAccountManagerInternal accountManager)
         {
-        }
-
-        public Account(bool local, bool @default)
-        {
-            Default = @default;
-            _isLocal = local;
-            _proxies = new PjstrArrayWrapper(_config.proxy);
+            Helper.GuardNotNull(accountManager);
+            _manager = accountManager;
             Id = -1;
             _session = new RegistrationSession(this);
-            _session.StateChanged += delegate { OnRegistrationStateChanged(); };
+            _session.StateChanged += delegate { OnRegistrationStateChanged(); }; 
         }
 
-        public static WithAccountBuilderExpression Register()
-        {
-            return new WithAccountBuilderExpression(new AccountBuilder());
-        }
+        //public static IAccountBuilder New()
+        //{
+        //    return /*new WithAccountBuilderExpression(*/new AccountBuilder();//);
+        //}
 
         public override void BeginInit()
         {
             base.BeginInit();
-            SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_config_default(_config);
-            _proxies.BeginInit();
+            _config = _manager.Provider.GetDefaultConfig();
         }
 
         public override void EndInit()
         {
             base.EndInit();
-            _config.proxy_cnt = (uint) _proxies.Count;
             Helper.GuardPositiveInt(Priority);
             if (!_isLocal)
             {
                 Helper.GuardNotNullStr(AccountId);
                 Helper.GuardNotNullStr(RegistrarUri);
-                Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(AccountId));
-                Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(RegistrarUri));
-                if (_config.cred_count != 0)
-                    Helper.GuardNotNull(Credential);
+                Helper.GuardIsTrue(new SipUriParser(AccountId).IsValid);
+                Helper.GuardIsTrue(new SipUriParser(RegistrarUri).IsValid);
             }
-            _proxies.EndInit();
+        }
+
+        public void SetConfig(AccountConfig config)
+        {
+            GuardNotInitializing();
+            Helper.GuardNotNull(config);
+            _config = config;
         }
 
         public void PublishOnline(string note)
         {
+            GuardDisposed();
+            GuardNotInitialized();
             if (!PublishPresence)
                 return;
-
-            var rpid = new pjrpid_element
-                           {
-                               activity = pjrpid_activity.PJRPID_ACTIVITY_UNKNOWN,
-                               note = new pj_str_t(note)
-                           };
-            Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi()
-                                  .pjsua_acc_set_online_status2(Id, Convert.ToInt32(1), ref rpid));
+            _manager.Provider.SetAccountOnlineStatus(Id, true,
+                                                     new RpidElement() {Activity = RpidActivity.Unknown, Note = note});
         }
 
         public void RenewRegistration()
         {
             GuardDisposed();
-            if (!_session.IsRegistered && Id != NativeConstants.PJSUA_INVALID_ID && !IsLocal)
+            GuardNotInitialized();
+            if (!_session.IsRegistered && Id != -1 && !IsLocal)
             {
-                Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_set_registration(Id,
-                                                                                                     Convert.ToInt32(
-                                                                                                         true)));
+                _manager.Provider.SetAccountRegistration(Id, true);
                 _session.HandleStateChanged();
             }
         }
@@ -514,30 +488,29 @@ namespace pjsip4net.Accounts
 
         protected void OnRegistrationStateChanged()
         {
-            SingletonHolder<IAccountManagerInternal>.Instance.RaiseStateChanged(this);
+            _manager.RaiseStateChanged(this);
         }
 
-        internal pjsua_acc_info GetAccountInfo()
+        internal AccountInfo GetAccountInfo()
         {
             lock (_lock)
             {
-                var info = new pjsua_acc_info();
-                if (Id != NativeConstants.PJSUA_INVALID_ID)
+                if (Id != -1)
                     try
                     {
-                        Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_get_info(Id, ref info));
+                        return _manager.Provider.GetInfo(Id);
                     }
                     catch (PjsipErrorException)
                     {
-                        Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_get_info(Id, ref info));
+                        return _manager.Provider.GetInfo(Id);
                     }
-                return info;
+                return null;
             }
         }
 
         //protected virtual void Modify()
         //{
-        //    Helper.GuardError(SipUserAgent.ApiFactory.GetAccountApi().pjsua_acc_modify(Id, _config));
+        //    Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi().pjsua_acc_modify(Id, _config));
         //}
 
         internal AccountStateChangedEventArgs GetEventArgs()
@@ -546,9 +519,9 @@ namespace pjsip4net.Accounts
             return new AccountStateChangedEventArgs
                        {
                            Id = Id,
-                           Uri = _config.id,
-                           StatusText = _isDisposed ? "" : info.status_text,
-                           StatusCode = _isDisposed ? -1 : (int) info.status
+                           Uri = _config.Id,
+                           StatusText = _isDisposed ? "" : info.StatusText,
+                           StatusCode = _isDisposed ? SipStatusCode.NotAcceptableAnywhere : info.Status
                        };
         }
 
