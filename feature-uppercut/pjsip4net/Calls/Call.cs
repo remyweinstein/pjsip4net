@@ -1,0 +1,407 @@
+using System;
+using System.Diagnostics;
+using pjsip4net.Accounts;
+using pjsip4net.Core;
+using pjsip4net.Core.Data;
+using pjsip4net.Core.Interfaces;
+using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
+
+namespace pjsip4net.Calls
+{
+    public class Call : Initializable, IIdentifiable<Call>
+    {
+
+        #region Private data
+
+        private readonly object _lock = new object();
+        private readonly MediaSession _mediaSession;
+        private readonly ICallManagerInternal _callManager;
+        private Account _account;
+        private IDisposable _accountLock;
+        internal InviteSession _inviteSession;
+
+        #endregion
+
+        #region Properties
+
+        private string _destinationUri;
+
+        public Account Account
+        {
+            get
+            {
+                GuardDisposed();
+                return _account;
+            }
+            internal set
+            {
+                Helper.GuardNotNull(value);
+                _account = value;
+                if (IsIncoming)
+                    if (_account != null) 
+                        _accountLock = _account.Lock();
+            }
+        }
+
+        public string DestinationUri
+        {
+            get
+            {
+                GuardDisposed();
+                return _destinationUri;
+            }
+            internal set
+            {
+                GuardDisposed();
+                GuardNotInitializing();
+                _destinationUri = value;
+            }
+        }
+
+        public InviteState InviteState
+        {
+            get { return _inviteSession.InviteState; }
+        }
+
+        public CallMediaState MediaState
+        {
+            get { return _mediaSession.MediaState; }
+        }
+
+        public bool IsIncoming { get; private set; }
+
+        public virtual bool IsActive
+        {
+            get
+            {
+                GuardDisposed();
+                return Id != -1 &&
+                       _callManager.CallApiProvider.IsCallActive(Id);
+            }
+        }
+
+        public bool HasMedia
+        {
+            get
+            {
+                GuardDisposed();
+                return Id != -1 && _callManager.CallApiProvider.CallHasMedia(Id) &&
+                       _mediaSession.IsActive;
+            }
+        }
+
+        public string LocalInfo
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.LocalInfo;
+            }
+        }
+
+        public string LocalContact
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.LocalContact;
+            }
+        }
+
+        public string RemoteInfo
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.RemoteInfo;
+            }
+        }
+
+        public string RemoteContact
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.RemoteContact;
+            }
+        }
+
+        public string DialogId
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.CallId;
+            }
+        }
+
+        public string StateText
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.StateText;
+            }
+        }
+
+        public SipStatusCode LastStatusCode
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.LastStatus;
+            }
+        }
+
+        public string LastStatusText
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.LastStatusText;
+            }
+        }
+
+        public int ConferenceSlotId
+        {
+            get
+            {
+                GuardDisposed();
+                return GetCallInfo().ConfSlot;
+            }
+        }
+
+        public double RxLevel
+        {
+            get
+            {
+                GuardDisposed();
+                var level = _callManager.MediaApiProvider.GetSignalLevel(ConferenceSlotId);
+                return level.Rx/255.0;
+            }
+            set
+            {
+                GuardDisposed();
+                Helper.GuardInRange(0.0d, 1.0d, value);
+                _callManager.MediaApiProvider.AdjustRxLevel(ConferenceSlotId, (float) value);
+            }
+        }
+
+        public double TxLevel
+        {
+            get
+            {
+                GuardDisposed();
+                var level = _callManager.MediaApiProvider.GetSignalLevel(ConferenceSlotId);
+                return level.Tx / 255.0;
+            }
+            set
+            {
+                GuardDisposed();
+                Helper.GuardInRange(0.0d, 1.0d, value);
+                _callManager.MediaApiProvider.AdjustTxLevel(ConferenceSlotId, (float) value);
+            }
+        }
+
+        public TimeSpan ConnectDuration
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.ConnectDuration;
+            }
+        }
+
+        public TimeSpan TotalDuration
+        {
+            get
+            {
+                var info = GetCallInfo();
+                return info.TotalDuration;
+            }
+        }
+
+        public int Id { get; internal set; }
+
+        #endregion
+
+        #region Methods
+
+        internal Call(ICallManagerInternal callManager, ILocalRegistry registry, IConferenceBridge conferenceBridge)
+        {
+            Helper.GuardNotNull(callManager);
+            Helper.GuardNotNull(conferenceBridge);
+            Helper.GuardNotNull(registry);
+            _callManager = callManager;
+
+            _inviteSession = new InviteSession(this, callManager);
+            _inviteSession.StateChanged += delegate { OnStateChanged(); };
+            _mediaSession = new MediaSession(this, registry, callManager, conferenceBridge);
+            _mediaSession.StateChanged += delegate { OnStateChanged(); };
+
+            CallInfo info = GetCallInfo();
+            IsIncoming = info.Role == SipRole.RoleUas;
+        }
+
+        public bool Equals(IIdentifiable<Call> other)
+        {
+            return EqualsTemplate.Equals(this, other);
+        }
+
+        bool IIdentifiable<Call>.DataEquals(Call other)
+        {
+            return true;
+        }
+
+        //public static ICallBuilder New()
+        //{
+        //    return new /*ToCallBuilderExpression(new*/ CallBuilder();//);
+        //}
+
+        public override void BeginInit()
+        {
+            GuardInitialized();
+            base.BeginInit();
+        }
+
+        public override void EndInit()
+        {
+            GuardNotInitializing();
+            base.EndInit();
+            if (!IsIncoming)
+                Helper.GuardIsTrue(new SipUriParser(DestinationUri).IsValid);
+
+            _accountLock = Account.Lock(); //if everything is ok
+        }
+
+        public void Hold()
+        {
+            GuardDisposed();
+            if (_inviteSession.IsConfirmed && IsActive)
+                _callManager.CallApiProvider.PutCallOnHold(Id);
+        }
+
+        public void ReleaseHold()
+        {
+            GuardDisposed();
+            if (_mediaSession.IsHeld) // media state should reflect correct state [unknown for now]
+                _callManager.CallApiProvider.ReinviteCall(Id, true);
+        }
+
+        public void Hangup()
+        {
+            Hangup("");
+        }
+
+        public void Hangup(string reason)
+        {
+            GuardDisposed();
+            if (!_inviteSession.IsDisconnected)
+                _callManager.CallApiProvider.HangupCall(Id, SipStatusCode.Decline, reason);
+        }
+
+        public void Answer(bool accept)
+        {
+            Answer(accept, "");
+        }
+
+        public void Answer(bool accept, string reason)
+        {
+            GuardDisposed();
+            if (!IsIncoming)
+                throw new InvalidOperationException("Can not answer on outgoing call");
+
+            if (!_inviteSession.IsConfirmed)
+            {
+                var code = (accept
+                                ? SipStatusCode.Ok
+                                : SipStatusCode.Decline);
+                _callManager.CallApiProvider.AnswerCall(Id, code, reason);
+            }
+        }
+
+        public void ConnectToConference()
+        {
+            GuardDisposed();
+            if (!_mediaSession.IsInConference)
+                _mediaSession.ConnectToConference();
+        }
+
+        public void DisconnectFromConference()
+        {
+            GuardDisposed();
+            if (_mediaSession.IsInConference)
+                _mediaSession.DisconnectFromConference();
+        }
+
+        public void SendDtmf(string digits)
+        {
+            GuardDisposed();
+            if (IsActive)
+                _callManager.CallApiProvider.DialDtmf(Id, digits);
+        }
+
+        internal virtual CallInfo GetCallInfo()
+        {
+            GuardDisposed();
+            //lock (_lock)
+            {
+                if (Id == -1)
+                    return null;
+                try
+                {
+                    return _callManager.CallApiProvider.GetInfo(Id);
+                }
+                catch (PjsipErrorException)
+                {
+                    return _callManager.CallApiProvider.GetInfo(Id);
+                }
+            }
+        }
+
+        internal void HandleInviteStateChanged()
+        {
+            _inviteSession.HandleStateChanged();
+        }
+
+        internal void HandleMediaStateChanged()
+        {
+            _mediaSession.HandleStateChanged();
+        }
+
+        private void OnStateChanged()
+        {
+            _callManager.RaiseCallStateChanged(this);
+        }
+
+        public override string ToString()
+        {
+            return ToString(false);
+        }
+
+        public virtual string ToString(bool withMedia)
+        {
+            if (Id == -1)
+                return base.ToString();
+
+            return _callManager.CallApiProvider.Dump(Id, withMedia, (uint) (withMedia ? 2000 : 1000), " ");
+        }
+
+        #endregion
+
+        #region Implementation of IDisposable
+
+        protected override void CleanUp()
+        {
+            Debug.WriteLine("Call " + Id + " disposed");
+            _accountLock.Dispose();
+            _account = null;
+            _accountLock = null;
+            _inviteSession.Dispose();
+            _mediaSession.Dispose();
+        }
+
+        #endregion
+    }
+}
