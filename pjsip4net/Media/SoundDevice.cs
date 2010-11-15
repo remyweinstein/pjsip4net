@@ -1,57 +1,58 @@
+using pjsip.Interop;
 
 namespace pjsip4net.Media
 {
-    //public class SoundDevice
-    //{
-    //    #region Private Data
+    public class SoundDevice
+    {
+        #region Private Data
 
-    //    private readonly pjmedia_snd_dev_info _info;
+        private readonly pjmedia_snd_dev_info _info;
 
-    //    #endregion
+        #endregion
 
-    //    #region Properties
+        #region Properties
 
-    //    public int Id { get; internal set; }
+        public int Id { get; internal set; }
 
-    //    public string Name
-    //    {
-    //        get { return _info.name; }
-    //    }
+        public string Name
+        {
+            get { return _info.name; }
+        }
 
-    //    public uint InputCount
-    //    {
-    //        get { return _info.input_count; }
-    //    }
+        public uint InputCount
+        {
+            get { return _info.input_count; }
+        }
 
-    //    public uint OutputCount
-    //    {
-    //        get { return _info.output_count; }
-    //    }
+        public uint OutputCount
+        {
+            get { return _info.output_count; }
+        }
 
-    //    public uint DefaultSamplesPerSecond
-    //    {
-    //        get { return _info.default_samples_per_sec; }
-    //    }
+        public uint DefaultSamplesPerSecond
+        {
+            get { return _info.default_samples_per_sec; }
+        }
 
-    //    public bool IsPlayback
-    //    {
-    //        get { return OutputCount > 0; }
-    //    }
+        public bool IsPlayback
+        {
+            get { return OutputCount > 0; }
+        }
 
-    //    public bool IsCapture
-    //    {
-    //        get { return InputCount > 0; }
-    //    }
+        public bool IsCapture
+        {
+            get { return InputCount > 0; }
+        }
 
-    //    #endregion
+        #endregion
 
-    //    #region Methods
+        #region Methods
 
-    //    internal SoundDevice(pjmedia_snd_dev_info info)
-    //    {
-    //        _info = info;
-    //    }
+        internal SoundDevice(pjmedia_snd_dev_info info)
+        {
+            _info = info;
+        }
 
-    //    #endregion
-    //}
+        #endregion
+    }
 }

@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
-using pjsip4net.Core.Interfaces;
-using pjsip4net.Core.Utils;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Tests
 {

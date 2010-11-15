@@ -36,8 +36,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.1.*")]
-[assembly: AssemblyFileVersion("0.1.*")]
+[assembly: AssemblyVersion("1.4.*")]
+[assembly: AssemblyFileVersion("1.4.*")]
 
 [assembly: InternalsVisibleTo("pjsip4net.Tests, PublicKeyToken=null", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("Rhino.Mocks")]

@@ -36,31 +36,43 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\Account.cs" />
     <Compile Include="Accounts\Dsl\AccountBuilder.cs" />
-    <Compile Include="Accounts\DefaultAccountManager.cs" />
+    <Compile Include="Accounts\AccountManager.cs" />
     <Compile Include="Accounts\AccountState.cs" />
     <Compile Include="Accounts\AccountStateChangedEventArgs.cs" />
-    <Compile Include="Configuration\BuildUserAgent.cs" />
-    <Compile Include="Configuration\ConfigureFromConfig.cs" />
-    <Compile Include="DefaultComponentConfigurator.cs" />
-    <Compile Include="DefaultLocalRegistry.cs" />
-    <Compile Include="DefaultObjectFactory.cs" />
-    <Compile Include="DefaultSipUserAgent.cs" />
-    <Compile Include="Interfaces\IAccountManager.cs" />
+    <Compile Include="Accounts\IAccountManager.cs" />
     <Compile Include="Accounts\RegistrationSession.cs" />
+    <Compile Include="ApiProviders\IAccountApiProvider.cs" />
+    <Compile Include="ApiProviders\IApiFactory.cs" />
+    <Compile Include="ApiProviders\IBasicApiProvider.cs" />
+    <Compile Include="ApiProviders\ICallApiProvider.cs" />
+    <Compile Include="ApiProviders\IIMApiProvider.cs" />
+    <Compile Include="ApiProviders\IMediaApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_AccountApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_ApiFactory.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_BasicApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_CallApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_IMApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_MediaApiProvider.cs" />
+    <Compile Include="ApiProviders\Impl\Pjsip_1_4_TransportApiProvider.cs" />
+    <Compile Include="ApiProviders\ITransportApiProvider.cs" />
     <Compile Include="Buddy\Buddy.cs" />
+    <Compile Include="Buddy\BuddyActivity.cs" />
     <Compile Include="Buddy\BuddyStateChangedEventArgs.cs" />
-    <Compile Include="Buddy\Dsl\BuddyBuilder.cs" />
+    <Compile Include="Buddy\BuddyStatus.cs" />
     <Compile Include="Calls\Call.cs" />
-    <Compile Include="Calls\Dsl\DefaultCallBuilder.cs" />
-    <Compile Include="Calls\DefaultCallManager.cs" />
+    <Compile Include="Calls\Dsl\CallBuilder.cs" />
+    <Compile Include="Calls\CallInviteState.cs" />
+    <Compile Include="Calls\CallManager.cs" />
+    <Compile Include="Calls\CallMediaState.cs" />
     <Compile Include="Calls\CallStateChangedEventArgs.cs" />
     <Compile Include="Calls\CallTransferEventArgs.cs" />
     <Compile Include="Calls\DtmfEventArgs.cs" />
-    <Compile Include="Interfaces\ICallManager.cs" />
+    <Compile Include="Calls\ICallManager.cs" />
     <Compile Include="Calls\IncomingCallEventArgs.cs" />
     <Compile Include="Calls\InviteSession.cs" />
     <Compile Include="Calls\InviteState.cs" />
@@ -83,39 +95,59 @@
     <Compile Include="Configuration\StunElement.cs" />
     <Compile Include="Configuration\StunServerElementsCollection.cs" />
     <Compile Include="Configuration\TurnElement.cs" />
-    <Compile Include="Interfaces\IAccountBuilder.cs" />
-    <Compile Include="Interfaces\ICallBuilder.cs" />
+    <Compile Include="Credential.cs" />
+    <Compile Include="IConfigurationProvider.cs" />
+    <Compile Include="IIdentifiable.cs" />
+    <Compile Include="IM\InstantMessage.cs" />
     <Compile Include="IM\Dsl\MessageBuilder.cs" />
-    <Compile Include="Interfaces\IConferenceBridge.cs" />
-    <Compile Include="Interfaces\ILocalRegistry.cs" />
-    <Compile Include="Interfaces\IMessageBuilder.cs" />
-    <Compile Include="Interfaces\IObjectFactory.cs" />
-    <Compile Include="Interfaces\IImManager.cs" />
-    <Compile Include="Interfaces\ISipUserAgent.cs" />
-    <Compile Include="Interfaces\ITlsTransport.cs" />
-    <Compile Include="Interfaces\IVoIPTransport.cs" />
-    <Compile Include="Interfaces\IVoIPTransportFactory.cs" />
+    <Compile Include="Initializable.cs" />
     <Compile Include="LogEventArgs.cs" />
-    <Compile Include="Media\DefaultConferenceBridge.cs" />
-    <Compile Include="Interfaces\IMediaManager.cs" />
+    <Compile Include="LoggingConfig.cs" />
+    <Compile Include="MediaTrasportSecurityRequirement.cs" />
+    <Compile Include="Media\CodecInfo.cs" />
+    <Compile Include="Media\ConferenceBridge.cs" />
+    <Compile Include="Media\IMediaManager.cs" />
     <Compile Include="Media\ISlotVisitor.cs" />
-    <Compile Include="Media\MediaComponentConfigurator.cs" />
-    <Compile Include="Media\DefaultMediaManager.cs" />
+    <Compile Include="Media\MediaConfig.cs" />
+    <Compile Include="Media\MediaManager.cs" />
+    <Compile Include="Media\MediaSlotInfo.cs" />
     <Compile Include="Media\SoundDevice.cs" />
     <Compile Include="Media\WavPlayer.cs" />
     <Compile Include="NatEventArgs.cs" />
     <Compile Include="PagerEventArgs.cs" />
+    <Compile Include="PjsipErrorException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IM\DefaultImManager.cs" />
-    <Compile Include="Transport\DefaultVoIPTransportFactory.cs" />
+    <Compile Include="Resource.cs" />
+    <Compile Include="SipUserAgent.cs" />
+    <Compile Include="TransportType.cs" />
     <Compile Include="Transport\VoIPTransport.cs" />
     <Compile Include="TypingEventArgs.cs" />
     <Compile Include="UaConfig.cs" />
+    <Compile Include="Utils\AbstractState.cs" />
+    <Compile Include="Utils\EqualsTemplate.cs" />
+    <Compile Include="Utils\EventArgs.cs" />
+    <Compile Include="Utils\Helper.cs" />
+    <Compile Include="Utils\MruCache.cs" />
+    <Compile Include="Utils\Nfa.cs" />
+    <Compile Include="Utils\NfaState.cs" />
+    <Compile Include="Utils\NfaWithBackTracking.cs" />
+    <Compile Include="Utils\NfaWithLambda.cs" />
+    <Compile Include="Utils\PjstrArrayWrapper.cs" />
+    <Compile Include="Utils\PJSTRTMarshaler.cs" />
+    <Compile Include="Utils\RangeChecker.cs" />
+    <Compile Include="Utils\SingletonHolder.cs" />
+    <Compile Include="Utils\SipUriBuilder.cs" />
+    <Compile Include="Utils\SipUriParser.cs" />
+    <Compile Include="Utils\StateMachine.cs" />
+    <Compile Include="Utils\StringBuilderExtension.cs" />
+    <Compile Include="Utils\TransitionFunction.cs" />
+    <Compile Include="Utils\Tuple.cs" />
+    <Compile Include="Utils\ValueWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\pjsip4net.Core\pjsip4net.Core.csproj">
-      <Project>{DAB611F8-F9B2-49AE-8496-BA98F99BA337}</Project>
-      <Name>pjsip4net.Core</Name>
+    <ProjectReference Include="..\pjsip.Interop\pjsip.Interop.csproj">
+      <Project>{0AEA8B23-5E46-4923-81B5-7755BA914750}</Project>
+      <Name>pjsip.Interop</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

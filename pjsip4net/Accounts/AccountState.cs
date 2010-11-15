@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Utils;
+using pjsip.Interop;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Accounts
 {
@@ -18,15 +18,15 @@ namespace pjsip4net.Accounts
 
         #region Overrides of AccountState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
-            AccountInfo info = _owner.Account.GetAccountInfo();
+            pjsua_acc_info info = _owner.Account.GetAccountInfo();
             if (_owner.Account.IsLocal)
                 _owner.ChangeState(new RegisteredAccountState(_owner));
-            else if (info.Status == SipStatusCode.Trying)
+            else if (info.status == pjsip_status_code.PJSIP_SC_TRYING)
                 _owner.ChangeState(new RegisteringAccountState(_owner));
             else
-                _owner.ChangeState(new UnknownStatusState(_owner, info.Status, info.StatusText));
+                _owner.ChangeState(new UnknownStatusState(_owner, info.status, info.status_text));
         }
 
         #endregion
@@ -46,22 +46,22 @@ namespace pjsip4net.Accounts
 
         #region Overrides of AccountState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
-            AccountInfo info = _owner.Account.GetAccountInfo();
-            if (info.Status == SipStatusCode.RequestTimeout)
+            pjsua_acc_info info = _owner.Account.GetAccountInfo();
+            if (info.status == pjsip_status_code.PJSIP_SC_REQUEST_TIMEOUT)
                 _owner.ChangeState(new TimedOutAccountRegistrationState(_owner));
-            else if (info.Status == SipStatusCode.Ok)
+            else if (info.status == pjsip_status_code.PJSIP_SC_OK)
                 _owner.ChangeState(new RegisteredAccountState(_owner));
             else
-                _owner.ChangeState(new UnknownStatusState(_owner, info.Status, info.StatusText));
+                _owner.ChangeState(new UnknownStatusState(_owner, info.status, info.status_text));
         }
 
         #endregion
     }
 
     /// <summary>
-    /// Either after PjsipScOk = 200 recieved or local account been added
+    /// Either after PJSIP_SC_OK = 200 recieved or local account been added
     /// </summary>
     internal class RegisteredAccountState : AbstractState<RegistrationSession>
     {
@@ -76,22 +76,22 @@ namespace pjsip4net.Accounts
 
         #region Overrides of AccountState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
-            if (_owner.Account.Id == -1 && _owner.Account.IsLocal)
+            if (_owner.Account.Id == NativeConstants.PJSUA_INVALID_ID && _owner.Account.IsLocal)
                 _owner.ChangeState(new InitializingAccountState(_owner));
             else
             {
-                AccountInfo info = _owner.Account.GetAccountInfo();
-                if (info.Status == (SipStatusCode) 1 || info.Status == SipStatusCode.Ok) //OK
+                pjsua_acc_info info = _owner.Account.GetAccountInfo();
+                if (info.status == (pjsip_status_code) 1 || info.status == (pjsip_status_code) 200) //OK
                     return;
                 //_owner.Account.IsOnline = false;
-                if (info.Status == SipStatusCode.RequestTimeout)
+                if (info.status == pjsip_status_code.PJSIP_SC_REQUEST_TIMEOUT)
                     _owner.ChangeState(new TimedOutAccountRegistrationState(_owner));
-                else if (info.Status == SipStatusCode.Trying)
+                else if (info.status == pjsip_status_code.PJSIP_SC_TRYING)
                     _owner.ChangeState(new RegisteringAccountState(_owner));
                 else
-                    _owner.ChangeState(new UnknownStatusState(_owner, info.Status, info.StatusText));
+                    _owner.ChangeState(new UnknownStatusState(_owner, info.status, info.status_text));
             }
         }
 
@@ -99,7 +99,7 @@ namespace pjsip4net.Accounts
     }
 
     /// <summary>
-    /// After PjsipScRequestTimeout = 408 recieved 
+    /// After PJSIP_SC_REQUEST_TIMEOUT = 408 recieved 
     /// </summary>
     internal class TimedOutAccountRegistrationState : AbstractState<RegistrationSession>
     {
@@ -113,15 +113,15 @@ namespace pjsip4net.Accounts
 
         #region Overrides of AccountState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
-            AccountInfo info = _owner.Account.GetAccountInfo();
-            if (info.Status == SipStatusCode.Ok)
+            pjsua_acc_info info = _owner.Account.GetAccountInfo();
+            if (info.status == pjsip_status_code.PJSIP_SC_OK)
                 _owner.ChangeState(new RegisteredAccountState(_owner));
-            else if (info.Status == SipStatusCode.Trying)
+            else if (info.status == pjsip_status_code.PJSIP_SC_TRYING)
                 _owner.ChangeState(new RegisteringAccountState(_owner));
             else
-                _owner.ChangeState(new UnknownStatusState(_owner, info.Status, info.StatusText));
+                _owner.ChangeState(new UnknownStatusState(_owner, info.status, info.status_text));
         }
 
         #endregion
@@ -132,7 +132,7 @@ namespace pjsip4net.Accounts
     /// </summary>
     internal class UnknownStatusState : AbstractState<RegistrationSession>
     {
-        public UnknownStatusState(RegistrationSession owner, SipStatusCode code, string statusText)
+        public UnknownStatusState(RegistrationSession owner, pjsip_status_code code, string statusText)
             : base(owner)
         {
             _owner.IsRegistered = false;
@@ -142,20 +142,20 @@ namespace pjsip4net.Accounts
             Debug.WriteLine(StatusText);
         }
 
-        public SipStatusCode StatusCode { get; private set; }
+        public pjsip_status_code StatusCode { get; private set; }
         public string StatusText { get; private set; }
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
-            AccountInfo info = _owner.Account.GetAccountInfo();
-            if (info.Status == SipStatusCode.Ok)
+            pjsua_acc_info info = _owner.Account.GetAccountInfo();
+            if (info.status == pjsip_status_code.PJSIP_SC_OK)
                 _owner.ChangeState(new RegisteredAccountState(_owner));
-            else if (info.Status == SipStatusCode.RequestTimeout)
+            else if (info.status == pjsip_status_code.PJSIP_SC_REQUEST_TIMEOUT)
                 _owner.ChangeState(new TimedOutAccountRegistrationState(_owner));
-            else if (info.Status == SipStatusCode.Trying)
+            else if (info.status == pjsip_status_code.PJSIP_SC_TRYING)
                 _owner.ChangeState(new RegisteringAccountState(_owner));
             else
-                _owner.ChangeState(new UnknownStatusState(_owner, info.Status, info.StatusText));
+                _owner.ChangeState(new UnknownStatusState(_owner, info.status, info.status_text));
         }
     }
 }

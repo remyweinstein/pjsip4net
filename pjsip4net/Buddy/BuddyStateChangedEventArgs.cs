@@ -1,5 +1,4 @@
 ﻿using System;
-using pjsip4net.Core.Data;
 
 namespace pjsip4net.Buddy
 {

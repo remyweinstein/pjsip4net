@@ -13512,8 +13512,8 @@ namespace pjsip.Interop
         public pjsua_callback_on_typing2 on_typing2;
         [MarshalAs(UnmanagedType.FunctionPtr)]
         public pjsua_callback_on_nat_detect on_nat_detect;
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public pjsua_callback_on_call_redirected on_call_redirected;
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public pjsua_callback_on_call_redirected on_call_redirected;
         //public pjsua_callback_on_mwi_info on_mwi_info;
     }
 

@@ -1,20 +1,15 @@
 using System;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Utils;
-using pjsip4net.Interfaces;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Calls
 {
     internal class InviteSession : StateMachine, IDisposable
     {
-        private readonly ICallManagerInternal _callManager;
         private WeakReference _call;
 
-        public InviteSession(Call owner, ICallManagerInternal callManager)
+        public InviteSession(Call owner)
         {
-            _callManager = callManager;
             Helper.GuardNotNull(owner);
-            Helper.GuardNotNull(callManager);
             _call = new WeakReference(owner);
             _state = owner.IsIncoming ? (AbstractState) new IncomingInviteState(this) : new NullInviteState(this);
         }
@@ -32,11 +27,7 @@ namespace pjsip4net.Calls
         public bool IsConfirmed { get; set; }
         public bool IsDisconnected { get; set; }
         public bool IsRinging { get; set; }
-        public InviteState InviteState { get; set; }
-        public ICallManagerInternal CallManager
-        {
-            get { return _callManager; }
-        }
+        public CallInviteState InviteState { get; set; }
 
         #region IDisposable Members
 

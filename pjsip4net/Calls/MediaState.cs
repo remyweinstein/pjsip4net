@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Utils;
-using pjsip4net.Interfaces;
+using pjsip.Interop;
+using pjsip4net.Media;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Calls
 {
@@ -18,16 +18,16 @@ namespace pjsip4net.Calls
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
             var info = _owner.Call.GetCallInfo();
-            if (info.MediaStatus == CallMediaState.Active)
+            if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE)
             {
-                if (_owner.Registry.Config.AutoConference)
+                if (SipUserAgent.Instance.Config.AutoConference)
                     _owner.ChangeState(new ConferenceMediaStateDecorator(_owner, new ActiveMediaState(_owner)));
                 else _owner.ChangeState(new ActiveMediaState(_owner));
             }
-            else if (info.MediaStatus == CallMediaState.Error)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ERROR)
                 _owner.ChangeState(new ErrorMediaState(_owner));
         }
 
@@ -44,7 +44,7 @@ namespace pjsip4net.Calls
             //connect call's media to sound device
             if (!_owner.IsActive)
             {
-                _owner.ConferenceBridge.ConnectToSoundDevice(
+                SingletonHolder<IMediaManager>.Instance.ConferenceBridge.ConnectToSoundDevice(
                     _owner.Call.ConferenceSlotId);
                 _owner.IsActive = true;
                 _owner.MediaState = CallMediaState.Active;
@@ -53,22 +53,22 @@ namespace pjsip4net.Calls
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
             var info = _owner.Call.GetCallInfo();
-            if (info.State == InviteState.Disconnected)
+            if (info.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
             {
                 _owner.ChangeState(new DisconnectedMediaState(_owner));
                 return;
             }
 
-            if (info.MediaStatus == CallMediaState.Error)
+            if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ERROR)
                 _owner.ChangeState(new ErrorMediaState(_owner));
-            else if (info.MediaStatus == CallMediaState.LocalHold)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_LOCAL_HOLD)
                 _owner.ChangeState(new LocalHoldMediaState(_owner));
-            else if (info.MediaStatus == CallMediaState.RemoteHold)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_REMOTE_HOLD)
                 _owner.ChangeState(new RemoteHoldMediaState(_owner));
-            else if (info.MediaStatus == CallMediaState.Active)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE)
                 _owner.ChangeState(new ActiveMediaState(_owner)); //to remove decorator
         }
 
@@ -84,10 +84,10 @@ namespace pjsip4net.Calls
             _owner.IsActive = false;
             _owner.IsHeld = false;
             _owner.MediaState = CallMediaState.Disconnected;
-            _owner.CallManager.TerminateCall(_owner.Call);
+            SingletonHolder<ICallManagerInternal>.Instance.TerminateCall(_owner.Call);
         }
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
         }
     }
@@ -104,25 +104,25 @@ namespace pjsip4net.Calls
             if (!_owner.IsActive)
             {
                 _owner.IsActive = true;
-                _owner.ConferenceBridge.ConnectToSoundDevice(
+                SingletonHolder<IMediaManager>.Instance.ConferenceBridge.ConnectToSoundDevice(
                     _owner.Call.ConferenceSlotId);
             }
         }
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
             var info = _owner.Call.GetCallInfo();
-            if (info.MediaStatus == CallMediaState.Active)
+            if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE)
             {
-                if (_owner.Registry.Config.AutoConference)
+                if (SipUserAgent.Instance.Config.AutoConference)
                     _owner.ChangeState(new ConferenceMediaStateDecorator(_owner, new ActiveMediaState(_owner)));
                 else _owner.ChangeState(new ActiveMediaState(_owner));
             }
-            else if (info.MediaStatus == CallMediaState.Error)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ERROR)
                 _owner.ChangeState(new ErrorMediaState(_owner));
-            else if (info.MediaStatus == CallMediaState.None)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_NONE)
                 _owner.ChangeState(new DisconnectedMediaState(_owner));
         }
 
@@ -141,25 +141,25 @@ namespace pjsip4net.Calls
             if (_owner.IsActive)
             {
                 _owner.IsActive = false;
-                _owner.ConferenceBridge.DisconnectFromSoundDevice(
+                SingletonHolder<IMediaManager>.Instance.ConferenceBridge.DisconnectFromSoundDevice(
                     _owner.Call.ConferenceSlotId);
             }
         }
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
             var info = _owner.Call.GetCallInfo();
-            if (info.MediaStatus == CallMediaState.Active)
+            if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE)
             {
-                if (_owner.Registry.Config.AutoConference)
+                if (SipUserAgent.Instance.Config.AutoConference)
                     _owner.ChangeState(new ConferenceMediaStateDecorator(_owner, new ActiveMediaState(_owner)));
                 else _owner.ChangeState(new ActiveMediaState(_owner));
             }
-            else if (info.MediaStatus == CallMediaState.Error)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ERROR)
                 _owner.ChangeState(new ErrorMediaState(_owner));
-            else if (info.MediaStatus == CallMediaState.None)
+            else if (info.media_status == pjsua_call_media_status.PJSUA_CALL_MEDIA_NONE)
                 _owner.ChangeState(new DisconnectedMediaState(_owner));
         }
 
@@ -178,14 +178,14 @@ namespace pjsip4net.Calls
             if (_owner.IsActive)
             {
                 _owner.IsActive = false;
-                _owner.ConferenceBridge.DisconnectFromSoundDevice(
+                SingletonHolder<IMediaManager>.Instance.ConferenceBridge.DisconnectFromSoundDevice(
                     _owner.Call.ConferenceSlotId);
             }
         }
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
         }
 
@@ -202,17 +202,17 @@ namespace pjsip4net.Calls
             Helper.GuardNotNull(inner);
             _inner = inner;
             Debug.WriteLine("Call " + _owner.Call.Id + " ConferenceMediaStateDecorator");
-            _owner.ConferenceBridge.ConnectCall(_owner.Call);
+            SingletonHolder<IMediaManager>.Instance.ConferenceBridge.ConnectCall(_owner.Call);
             _owner.IsInConference = true;
         }
 
         #region Overrides of AbstractState
 
-        public override void StateChanged()
+        internal override void StateChanged()
         {
             if (_owner.IsInConference)
             {
-                _owner.ConferenceBridge.DisconnectCall(_owner.Call);
+                SingletonHolder<IMediaManager>.Instance.ConferenceBridge.DisconnectCall(_owner.Call);
                 _owner.IsInConference = false;
             }
             _inner.StateChanged(); //let pj take care about disconnection

@@ -1,8 +1,6 @@
-﻿using NUnit.Framework;
-using pjsip4net.Core;
-using pjsip4net.Core.Interfaces.ApiProviders;
-using pjsip4net.Core.Utils;
-using pjsip4net.IM;
+﻿using DoxWox.SIPUserAgent.Utils;
+using NUnit.Framework;
+using pjsip4net.ApiProviders;
 using Rhino.Mocks;
 
 namespace pjsip4net.Tests
@@ -23,7 +21,10 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithDomainAsIP_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
             var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
 
             var sut = new SipUriParser("<sip:12.25.12.1>");
 
@@ -36,6 +37,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithDomainAsDns_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:doxwox.com");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -47,6 +53,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithAlfabetExtensionAndDomainAsDns_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:test@doxwox.com");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -58,6 +69,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithAlfabetExtensionAndDomainAsDnsAndPort_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:test@doxwox.com:5080");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -69,6 +85,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithAlfabetExtensionAndPwdAndDomainAsDnsAndPort_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:test:test@doxwox.com:5080");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -80,6 +101,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithAlfabetExtensionAndPwdAndDomainAsDnsAndPortWithTransportHeader_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:test:test@doxwox.com:5080;transport=tcp");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -93,6 +119,11 @@ namespace pjsip4net.Tests
         [Test]
         public void Parse_ValidSipUriWithAlfabetDomainAsDnsWithTransportHeader_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:doxwox.com;transport=tcp");
 
             Assert.AreEqual("doxwox.com", sut.Domain);
@@ -106,6 +137,11 @@ namespace pjsip4net.Tests
         [Ignore]
         public void Parse_ValidSipUriWithAlfabetDomainAsDnsWithTransportHeaderAndSomaOtherHeader_ValidPropertiesFilled()
         {
+            SipUserAgent.ApiFactory = MockRepository.GenerateStub<IApiFactory>();
+            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
+            SipUserAgent.ApiFactory.Stub(f => f.GetBasicApi()).Return(basicApi);
+            basicApi.Stub(p => p.pjsua_verify_sip_url(Arg<string>.Is.Anything)).Return(0);
+
             var sut = new SipUriParser("sip:doxwox.com;transport=tcp;otherheader");
 
             Assert.AreEqual("doxwox.com", sut.Domain);

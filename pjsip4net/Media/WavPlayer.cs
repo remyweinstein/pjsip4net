@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using pjsip4net.Core;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Interfaces;
-using pjsip4net.Core.Interfaces.ApiProviders;
-using pjsip4net.Core.Utils;
+using pjsip.Interop;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Media
 {
@@ -12,8 +9,7 @@ namespace pjsip4net.Media
     {
         #region Private Data
 
-        private ConferencePortInfo _mediaInfo;
-        private IMediaApiProvider _mediaApi;
+        private MediaSlotInfo _mediaInfo;
 
         #endregion
 
@@ -21,14 +17,15 @@ namespace pjsip4net.Media
 
         public string File { get; private set; }
 
-        public ConferencePortInfo ConferenceSlot
+        public MediaSlotInfo ConferenceSlot
         {
             get
             {
                 //GuardDisposed();
-                if (Id != -1)
+                if (Id != NativeConstants.PJSUA_INVALID_ID)
                     if (_mediaInfo == null)
-                        _mediaInfo = _mediaApi.GetPortInfo(Id);
+                        _mediaInfo =
+                            new MediaSlotInfo(SipUserAgent.ApiFactory.GetMediaApi().pjsua_player_get_conf_port(Id));
                 return _mediaInfo;
             }
         }
@@ -39,39 +36,38 @@ namespace pjsip4net.Media
 
         #region Methods
 
-        public WavPlayer(IMediaApiProvider mediaApi)
+        public WavPlayer(string file, bool loop)
         {
-            Id = -1;
-            Helper.GuardNotNull(mediaApi);
-            _mediaApi = mediaApi;
-        }
-
-        public void Start(string file, bool loop)
-        {
-            GuardDisposed();
+            Id = NativeConstants.PJSUA_INVALID_ID;
             Helper.GuardNotNullStr(file);
 
-            var filename = Path.GetFullPath(file);
+            int id = NativeConstants.PJSUA_INVALID_ID;
+            var filename = new pj_str_t(Path.GetFullPath(file));
             File = file;
-            Id = _mediaApi.CreatePlayerAndGetId(filename, loop ? 1u : 0u);
+
+            Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_player_create(ref filename, loop ? 1u : 0u,
+                                                                                        ref id));
+            Id = id;
+            //SipUserAgent.Instance.MediaManager.ConferenceBridge.ConnectToSoundDevice(ConferenceSlot.Id);
         }
 
         public void SetPosition(uint position)
         {
             GuardDisposed();
-            _mediaApi.SetPlayerPosition(Id, position);
+            Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_player_set_pos(Id, position));
         }
 
         protected override void CleanUp()
         {
             try
             {
-                _mediaApi.DestroyPlayer(Id);
+                SipUserAgent.Instance.MediaManager.ConferenceBridge.DisconnectFromSoundDevice(ConferenceSlot.Id);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_player_destroy(Id));
             }
             finally
             {
                 _mediaInfo = null;
-                Id = -1;
+                Id = NativeConstants.PJSUA_INVALID_ID;
             }
         }
 

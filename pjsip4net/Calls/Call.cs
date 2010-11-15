@@ -1,22 +1,19 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using pjsip.Interop;
 using pjsip4net.Accounts;
-using pjsip4net.Core;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Interfaces;
-using pjsip4net.Core.Utils;
-using pjsip4net.Interfaces;
+using pjsip4net.Calls.Dsl;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Calls
 {
     public class Call : Initializable, IIdentifiable<Call>
     {
-
         #region Private data
 
         private readonly object _lock = new object();
         private readonly MediaSession _mediaSession;
-        private readonly ICallManagerInternal _callManager;
         private Account _account;
         private IDisposable _accountLock;
         internal InviteSession _inviteSession;
@@ -34,14 +31,7 @@ namespace pjsip4net.Calls
                 GuardDisposed();
                 return _account;
             }
-            internal set
-            {
-                Helper.GuardNotNull(value);
-                _account = value;
-                if (IsIncoming)
-                    if (_account != null) 
-                        _accountLock = _account.Lock();
-            }
+            private set { _account = value; }
         }
 
         public string DestinationUri
@@ -59,7 +49,7 @@ namespace pjsip4net.Calls
             }
         }
 
-        public InviteState InviteState
+        public CallInviteState InviteState
         {
             get { return _inviteSession.InviteState; }
         }
@@ -76,8 +66,8 @@ namespace pjsip4net.Calls
             get
             {
                 GuardDisposed();
-                return Id != -1 &&
-                       _callManager.CallApiProvider.IsCallActive(Id);
+                return Id != NativeConstants.PJSUA_INVALID_ID &&
+                       SipUserAgent.ApiFactory.GetCallApi().pjsua_call_is_active(Id);
             }
         }
 
@@ -86,7 +76,7 @@ namespace pjsip4net.Calls
             get
             {
                 GuardDisposed();
-                return Id != -1 && _callManager.CallApiProvider.CallHasMedia(Id) &&
+                return Id != -1 && SipUserAgent.ApiFactory.GetCallApi().pjsua_call_has_media(Id) &&
                        _mediaSession.IsActive;
             }
         }
@@ -96,7 +86,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.LocalInfo;
+                return info.local_info;
             }
         }
 
@@ -105,7 +95,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.LocalContact;
+                return info.local_contact;
             }
         }
 
@@ -114,7 +104,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.RemoteInfo;
+                return info.remote_info;
             }
         }
 
@@ -123,7 +113,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.RemoteContact;
+                return info.remote_contact;
             }
         }
 
@@ -132,7 +122,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.CallId;
+                return info.call_id;
             }
         }
 
@@ -141,16 +131,16 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.StateText;
+                return info.state_text;
             }
         }
 
-        public SipStatusCode LastStatusCode
+        public uint LastStatusCode
         {
             get
             {
                 var info = GetCallInfo();
-                return info.LastStatus;
+                return (uint) info.last_status;
             }
         }
 
@@ -159,7 +149,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.LastStatusText;
+                return info.last_status_text;
             }
         }
 
@@ -168,7 +158,7 @@ namespace pjsip4net.Calls
             get
             {
                 GuardDisposed();
-                return GetCallInfo().ConfSlot;
+                return GetCallInfo().conf_slot;
             }
         }
 
@@ -177,14 +167,18 @@ namespace pjsip4net.Calls
             get
             {
                 GuardDisposed();
-                var level = _callManager.MediaApiProvider.GetSignalLevel(ConferenceSlotId);
-                return level.Rx/255.0;
+                uint rxLevel = 0, txLevel = 0;
+                Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_conf_get_signal_level(ConferenceSlotId,
+                                                                                                    ref txLevel,
+                                                                                                    ref rxLevel));
+                return rxLevel/255.0;
             }
             set
             {
                 GuardDisposed();
                 Helper.GuardInRange(0.0d, 1.0d, value);
-                _callManager.MediaApiProvider.AdjustRxLevel(ConferenceSlotId, (float) value);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_conf_adjust_rx_level(ConferenceSlotId,
+                                                                                                   (float) value));
             }
         }
 
@@ -193,14 +187,18 @@ namespace pjsip4net.Calls
             get
             {
                 GuardDisposed();
-                var level = _callManager.MediaApiProvider.GetSignalLevel(ConferenceSlotId);
-                return level.Tx / 255.0;
+                uint rxLevel = 0, txLevel = 0;
+                Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_conf_get_signal_level(ConferenceSlotId,
+                                                                                                    ref txLevel,
+                                                                                                    ref rxLevel));
+                return txLevel/255.0;
             }
             set
             {
                 GuardDisposed();
                 Helper.GuardInRange(0.0d, 1.0d, value);
-                _callManager.MediaApiProvider.AdjustTxLevel(ConferenceSlotId, (float) value);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetMediaApi().pjsua_conf_adjust_tx_level(ConferenceSlotId,
+                                                                                                   (float) value));
             }
         }
 
@@ -209,7 +207,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.ConnectDuration;
+                return info.connect_duration;
             }
         }
 
@@ -218,7 +216,7 @@ namespace pjsip4net.Calls
             get
             {
                 var info = GetCallInfo();
-                return info.TotalDuration;
+                return info.total_duration;
             }
         }
 
@@ -228,20 +226,27 @@ namespace pjsip4net.Calls
 
         #region Methods
 
-        internal Call(ICallManagerInternal callManager, ILocalRegistry registry, IConferenceBridge conferenceBridge)
+        internal Call(Account account)
+            : this(account, NativeConstants.PJSUA_INVALID_ID)
         {
-            Helper.GuardNotNull(callManager);
-            Helper.GuardNotNull(conferenceBridge);
-            Helper.GuardNotNull(registry);
-            _callManager = callManager;
+        }
 
-            _inviteSession = new InviteSession(this, callManager);
+        internal Call(Account account, int id)
+        {
+            Helper.GuardNotNull(account);
+            Account = account;
+            Id = id;
+
+            _inviteSession = new InviteSession(this);
             _inviteSession.StateChanged += delegate { OnStateChanged(); };
-            _mediaSession = new MediaSession(this, registry, callManager, conferenceBridge);
+            _mediaSession = new MediaSession(this);
             _mediaSession.StateChanged += delegate { OnStateChanged(); };
 
-            CallInfo info = GetCallInfo();
-            IsIncoming = info.Role == SipRole.RoleUas;
+            pjsua_call_info info = GetCallInfo();
+            IsIncoming = info.role == pjsip_role_e.PJSIP_ROLE_UAS;
+
+            if (IsIncoming)
+                _accountLock = Account.Lock();
         }
 
         public bool Equals(IIdentifiable<Call> other)
@@ -254,10 +259,10 @@ namespace pjsip4net.Calls
             return true;
         }
 
-        //public static ICallBuilder New()
-        //{
-        //    return new /*ToCallBuilderExpression(new*/ CallBuilder();//);
-        //}
+        public static ToCallBuilderExpression MakeCall()
+        {
+            return new ToCallBuilderExpression(new CallBuilder());
+        }
 
         public override void BeginInit()
         {
@@ -270,7 +275,7 @@ namespace pjsip4net.Calls
             GuardNotInitializing();
             base.EndInit();
             if (!IsIncoming)
-                Helper.GuardIsTrue(new SipUriParser(DestinationUri).IsValid);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(DestinationUri));
 
             _accountLock = Account.Lock(); //if everything is ok
         }
@@ -279,14 +284,15 @@ namespace pjsip4net.Calls
         {
             GuardDisposed();
             if (_inviteSession.IsConfirmed && IsActive)
-                _callManager.CallApiProvider.PutCallOnHold(Id);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_set_hold(Id, null));
         }
 
         public void ReleaseHold()
         {
             GuardDisposed();
             if (_mediaSession.IsHeld) // media state should reflect correct state [unknown for now]
-                _callManager.CallApiProvider.ReinviteCall(Id, true);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_reinvite(Id, Convert.ToInt32(true),
+                                                                                           null));
         }
 
         public void Hangup()
@@ -298,7 +304,14 @@ namespace pjsip4net.Calls
         {
             GuardDisposed();
             if (!_inviteSession.IsDisconnected)
-                _callManager.CallApiProvider.HangupCall(Id, SipStatusCode.Decline, reason);
+            {
+                var r = new pj_str_t(reason);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_hangup(Id,
+                                                                                         (uint)
+                                                                                         pjsip_status_code.
+                                                                                             PJSIP_SC_DECLINE, ref r,
+                                                                                         null));
+            }
         }
 
         public void Answer(bool accept)
@@ -314,10 +327,12 @@ namespace pjsip4net.Calls
 
             if (!_inviteSession.IsConfirmed)
             {
-                var code = (accept
-                                ? SipStatusCode.Ok
-                                : SipStatusCode.Decline);
-                _callManager.CallApiProvider.AnswerCall(Id, code, reason);
+                var r = new pj_str_t(reason);
+                var code = (uint)
+                           (accept
+                                ? pjsip_status_code.PJSIP_SC_OK
+                                : pjsip_status_code.PJSIP_SC_DECLINE);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_answer(Id, code, ref r, null));
             }
         }
 
@@ -339,24 +354,29 @@ namespace pjsip4net.Calls
         {
             GuardDisposed();
             if (IsActive)
-                _callManager.CallApiProvider.DialDtmf(Id, digits);
+            {
+                var digits1 = new pj_str_t(digits);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_dial_dtmf(Id, ref digits1));
+            }
         }
 
-        internal virtual CallInfo GetCallInfo()
+        internal virtual pjsua_call_info GetCallInfo()
         {
             GuardDisposed();
             //lock (_lock)
             {
-                if (Id == -1)
-                    return null;
+                var info = new pjsua_call_info();
+                if (Id == NativeConstants.PJSUA_INVALID_ID)
+                    return info;
                 try
                 {
-                    return _callManager.CallApiProvider.GetInfo(Id);
+                    Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_get_info(Id, ref info));
                 }
                 catch (PjsipErrorException)
                 {
-                    return _callManager.CallApiProvider.GetInfo(Id);
+                    Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_get_info(Id, ref info));
                 }
+                return info;
             }
         }
 
@@ -372,7 +392,7 @@ namespace pjsip4net.Calls
 
         private void OnStateChanged()
         {
-            _callManager.RaiseCallStateChanged(this);
+            SingletonHolder<ICallManagerInternal>.Instance.RaiseCallStateChanged(this);
         }
 
         public override string ToString()
@@ -382,10 +402,23 @@ namespace pjsip4net.Calls
 
         public virtual string ToString(bool withMedia)
         {
-            if (Id == -1)
+            if (Id == NativeConstants.PJSUA_INVALID_ID)
                 return base.ToString();
 
-            return _callManager.CallApiProvider.Dump(Id, withMedia, (uint) (withMedia ? 2000 : 1000), " ");
+            IntPtr ptr = IntPtr.Zero;
+            try
+            {
+                ptr = Marshal.AllocHGlobal(withMedia ? 2000 : 1000);
+                Helper.GuardError(SipUserAgent.ApiFactory.GetCallApi().pjsua_call_dump(Id, Convert.ToInt32(withMedia),
+                                                                                       ptr,
+                                                                                       (uint) (withMedia ? 2000 : 1000),
+                                                                                       " "));
+                return "call data: " + Marshal.PtrToStringAnsi(ptr, withMedia ? 2000 : 1000);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
 
         #endregion

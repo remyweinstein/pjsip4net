@@ -1,69 +1,64 @@
 ﻿using System;
-using pjsip4net.Buddy.Dsl;
-using pjsip4net.Core;
-using pjsip4net.Core.Data;
-using pjsip4net.Core.Interfaces;
-using pjsip4net.Core.Interfaces.ApiProviders;
-using pjsip4net.Core.Utils;
+using pjsip.Interop;
+using pjsip4net.Utils;
 
 namespace pjsip4net.Buddy
 {
     public class Buddy : Initializable, IIdentifiable<Buddy>
     {
         private readonly object _lock = new object();
-        private IIMApiProvider _imApi;
-        internal BuddyConfig _config;
+        internal pjsua_buddy_config _config = new pjsua_buddy_config();
 
         #region Properties
 
         public string Uri
         {
-            get { return _config.Uri; }
+            get { return _config.uri; }
             set
             {
                 GuardNotInitializing();
-                _config.Uri = value;
+                _config.uri = new pj_str_t(value);
             }
         }
 
         public bool Subscribe
         {
-            get { return _config.Subscribe; }
+            get { return Convert.ToBoolean(_config.subscribe); }
             set
             {
                 GuardNotInitializing();
-                _config.Subscribe = value;
+                _config.subscribe = Convert.ToInt32(value);
             }
         }
 
         public string Contact
         {
-            get { return GetInfo().Contact; }
+            get { return GetInfo().contact; }
         }
 
         public BuddyStatus Status
         {
-            get { return GetInfo().Status; }
+            get { return (BuddyStatus) GetInfo().status; }
         }
 
         public string StatusText
         {
-            get { return GetInfo().StatusText; }
+            get { return GetInfo().status_text; }
         }
 
         public bool MonitoringPresence
         {
-            get { return GetInfo().MonitorPresence; }
+            get { return Convert.ToBoolean(GetInfo().monitor_pres); }
         }
 
         public BuddyActivity Activity
         {
-            get { return (BuddyActivity) GetInfo().Rpid.Activity; }
+            get { return (BuddyActivity) GetInfo().rpid.activity; }
         }
 
         public String ActivityNote
         {
-            get { return GetInfo().Rpid.Note; }
+            get { return GetInfo().rpid.note; }
         }
 
         public int Id { get; internal set; }
@@ -72,47 +67,45 @@ namespace pjsip4net.Buddy
 
         #region Methods
 
-        public Buddy(IIMApiProvider imApi)
+        public Buddy()
         {
-            Helper.GuardNotNull(imApi);
-            _imApi = imApi;
-            _config = _imApi.GetDefaultConfig();
+            SipUserAgent.ApiFactory.GetImApi().pjsua_buddy_config_default(_config);
             Id = -1;
         }
 
         public override void EndInit()
         {
             base.EndInit();
-            Helper.GuardIsTrue(new SipUriParser(Uri).IsValid);
+            Helper.GuardError(SipUserAgent.ApiFactory.GetBasicApi().pjsua_verify_sip_url(_config.uri));
         }
 
         public void UpdatePresenceState()
         {
-            GuardDisposed();
-            _imApi.UpdatePresence(Id);
+            Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_buddy_update_pres(Id));
         }
 
         protected override void CleanUp()
         {
             base.CleanUp();
-            Id = -1;
+            Id = NativeConstants.PJSUA_INVALID_ID;
         }
 
-        internal BuddyInfo GetInfo()
+        internal pjsua_buddy_info GetInfo()
         {
             GuardDisposed();
             //lock (_lock)
             {
-                if (Id != -1)
+                var info = new pjsua_buddy_info();
+                if (Id != NativeConstants.PJSUA_INVALID_ID)
                     try
                     {
-                        return _imApi.GetInfo(Id);
+                        Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_buddy_get_info(Id, ref info));
                     }
                     catch (PjsipErrorException)
                     {
-                        return _imApi.GetInfo(Id);
+                        Helper.GuardError(SipUserAgent.ApiFactory.GetImApi().pjsua_buddy_get_info(Id, ref info));
                     }
-                return null;
+                return info;
             }
         }
 
@@ -122,10 +115,10 @@ namespace pjsip4net.Buddy
             return new BuddyStateChangedEventArgs
                        {
                            Id = Id,
-                           Uri = info.Uri,
-                           StatusText = _isDisposed ? "" : info.StatusText,
-                           Status = _isDisposed ? BuddyStatus.Unknown : info.Status,
-                           Note = _isDisposed ? "unknown" : info.Rpid.Note
+                           Uri = info.uri,
+                           StatusText = _isDisposed ? "" : info.status_text,
+                           Status = _isDisposed ? BuddyStatus.Unknown : (BuddyStatus) info.status,
+                           Note = _isDisposed ? "unknown" : info.rpid.note
                        };
         }
 
@@ -144,10 +137,5 @@ namespace pjsip4net.Buddy
         }
 
         #endregion
-
-        //public static BuddyBuilder Create()
-        //{
-        //    return new BuddyBuilder();
-        //}
     }
 }

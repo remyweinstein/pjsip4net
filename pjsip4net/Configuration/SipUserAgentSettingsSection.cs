@@ -1,5 +1,4 @@
 using System.Configuration;
-using pjsip4net.Core.Data;
 
 namespace pjsip4net.Configuration
 {

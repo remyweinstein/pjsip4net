@@ -58,28 +58,28 @@ namespace pjsip4net.Configuration
                     "Wrong SIP transport type. Can be one of following: udp, tcp, tls");
         }
 
-        //public VoIPTransport CreateTransport()
-        //{
-        //    VoIPTransport transport;
-        //    switch (TransportType)
-        //    {
-        //        case "udp":
-        //            transport = VoIPTransport.CreateUDPTransport();
-        //            break;
-        //        case "tcp":
-        //            transport = VoIPTransport.CreateTCPTransport();
-        //            break;
-        //        case "tls":
-        //            transport = VoIPTransport.CreateTLSTransport();
-        //            break;
-        //        default:
-        //            transport = VoIPTransport.CreateUDPTransport();
-        //            break;
-        //    }
+        public VoIPTransport CreateTransport()
+        {
+            VoIPTransport transport;
+            switch (TransportType)
+            {
+                case "udp":
+                    transport = VoIPTransport.CreateUDPTransport();
+                    break;
+                case "tcp":
+                    transport = VoIPTransport.CreateTCPTransport();
+                    break;
+                case "tls":
+                    transport = VoIPTransport.CreateTLSTransport();
+                    break;
+                default:
+                    transport = VoIPTransport.CreateUDPTransport();
+                    break;
+            }
 
-        //    using (transport.InitializationScope())
-        //        transport.Port = (uint) Port;
-        //    return transport;
-        //}
+            using (transport.InitializationScope())
+                transport.Port = (uint) Port;
+            return transport;
+        }
     }
 }
