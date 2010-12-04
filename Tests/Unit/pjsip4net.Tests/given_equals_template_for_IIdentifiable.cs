@@ -8,15 +8,8 @@ namespace pjsip4net.Tests
     /// Summary description for EqualsTemplateIdentifiableTests
     /// </summary>
     [TestFixture]
-    public class EqualsTemplateIdentifiableTests
+    public class given_equals_template_for_IIdentifiable
     {
-        public EqualsTemplateIdentifiableTests()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
-
         class MyClass : IIdentifiable<MyClass>
         {
             public int MyProperty { get; set; }
@@ -43,7 +36,7 @@ namespace pjsip4net.Tests
         }
 
         [Test]
-        public void Equals_EqualObjects_ReturnsTrue()
+        public void when_equals_called_with_equal_objects__should_return_true()
         {
             var sut1 = new MyClass();
             var sut2 = new MyClass();
@@ -51,7 +44,7 @@ namespace pjsip4net.Tests
         }
         
         [Test]
-        public void Equals_DiffIds_ReturnsFalse()
+        public void when_equals_called_with_objects_with_different_ids__should_return_false()
         {
             var sut1 = new MyClass();
             var sut2 = new MyClass(){Id = 1};
@@ -59,7 +52,7 @@ namespace pjsip4net.Tests
         }
         
         [Test]
-        public void Equals_DiffProps_ReturnsFalse()
+        public void when_equals_called_with_objects_with_different_properties__should_return_false()
         {
             var sut1 = new MyClass();
             var sut2 = new MyClass(){MyProperty = 1};

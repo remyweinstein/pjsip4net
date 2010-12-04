@@ -15,7 +15,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM
 {
-    public class DefaultImManager : Initializable, IImManager
+    internal class DefaultImManager : Initializable, IImManager
     {
         #region Private Data
 
@@ -32,8 +32,8 @@ namespace pjsip4net.IM
         //private IVoIPTransport _sipTransport; //move to build
 
         #endregion
-        
-        internal DefaultImManager(ILocalRegistry localRegistry, IBasicApiProvider basicApi,
+
+        public DefaultImManager(ILocalRegistry localRegistry, IBasicApiProvider basicApi,
                            IIMApiProvider imApi, ICallApiProvider callApi, IEventsProvider eventsProvider)
         {
             Helper.GuardNotNull(localRegistry);

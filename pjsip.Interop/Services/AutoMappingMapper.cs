@@ -24,17 +24,17 @@ namespace pjsip.Interop.Services
             //todo: need two profiles one for pjsua->pjsip4net & the other for pjsip4net->pjsua
             _engine = engine;
             _container = container;
-            Mapper.Initialize(c =>
-                                  {
-                                      c.AddProfile(new Pjsip4net2PjsuaProfile());
-                                      c.AddProfile(new Pjsua2Pjsip4netProfile());
-                                  });
+            //Mapper.Initialize(c =>
+            //                      {
+            //                          c.AddProfile(new Pjsip4net2PjsuaProfile());
+            //                          c.AddProfile(new Pjsua2Pjsip4netProfile());
+            //                      });
             Mapper.CreateMap<UaConfig, pjsua_config>()//.WithProfile("pjsip4net2pjsua")
                 .ForMember(x => x.cb, cx => cx.Ignore())
                 .ForMember(x => x.cred_info,
                            cx => cx.MapFrom(x => x.Credentials.Select(c => c.ToPjsipCredentialsInfo()).ToArray()))
                 .ForMember(x => x.cred_count, cx => cx.MapFrom(x => (uint) x.Credentials.Count))
-                .ForMember(x => x.force_lr, cx => cx.MapFrom(x => x.ForceLooseRoute))
+                .ForMember(x => x.force_lr, cx => cx.MapFrom(x => Convert.ToInt32(x.ForceLooseRoute)))
                 .ForMember(x => x.hangup_forked_call, cx => cx.MapFrom(x => Convert.ToInt32(x.HangupForkedCall)))
                 .ForMember(x => x.max_calls, cx => cx.MapFrom(x => x.MaxCalls))
                 .ForMember(x => x.nameserver, cx => cx.MapFrom(x => x.DnsServers.Select(s => new pj_str_t(s)).ToArray()))
@@ -73,7 +73,9 @@ namespace pjsip.Interop.Services
                 .ForMember(x => x.StunServers, cx => cx.MapFrom(x => x.stun_srv.Select(s => (string) s).ToList()))
                 .ForMember(x => x.ThreadCount, cx => cx.MapFrom(x => x.thread_cnt))
                 .ForMember(x => x.UseSrtp, cx => cx.MapFrom(x => (SrtpRequirement) x.use_srtp))
-                .ForMember(x => x.UserAgent, cx => cx.MapFrom(x => (string) x.user_agent));
+                .ForMember(x => x.UserAgent, cx => cx.MapFrom(x => (string) x.user_agent))
+                .ForMember(x => x.AutoAnswer, cx => cx.Ignore())
+                .ForMember(x => x.AutoConference, cx => cx.Ignore());
 
             Mapper.CreateMap<LoggingConfig, pjsua_logging_config>()
                 .ForMember(x => x.AnonymousMember1, cx => cx.Ignore())
@@ -85,60 +87,63 @@ namespace pjsip.Interop.Services
                 .ForMember(x => x.msg_logging, cx => cx.MapFrom(x => Convert.ToInt32(x.LogMessages)));
             Mapper.CreateMap<pjsua_logging_config, LoggingConfig>()
                 .ForMember(x => x.LogLevel, cx => cx.MapFrom(x => x.level))
-                .ForMember(x => x.LogMessages, cx => cx.MapFrom(x => Convert.ToBoolean(x.msg_logging)));
+                .ForMember(x => x.LogMessages, cx => cx.MapFrom(x => Convert.ToBoolean(x.msg_logging)))
+                .ForMember(x => x.TraceAndDebug, cx => cx.Ignore());
 
-            Mapper.CreateMap<MediaConfig, pjsua_media_config>().WithProfile("pjsip4net2pjsua")
-                //.ForMember(x => x.audio_frame_ptime, cx => cx.MapFrom(x => x.AudioFramePerTime))
-                //.ForMember(x => x.channel_count, cx => cx.MapFrom(x => x.ChannelCount))
-                //.ForMember(x => x.clock_rate, cx => cx.MapFrom(x => x.ClockRate))
-                //.ForMember(x => x.ec_options, cx => cx.MapFrom(x => x.EcOptions))
-                //.ForMember(x => x.ec_tail_len, cx => cx.MapFrom(x => x.EcTailLength))
+            Mapper.CreateMap<MediaConfig, pjsua_media_config>()//.WithProfile("pjsip4net2pjsua")
+                .ForMember(x => x.audio_frame_ptime, cx => cx.MapFrom(x => x.AudioFramePtime))
+                .ForMember(x => x.channel_count, cx => cx.MapFrom(x => x.ChannelCount))
+                .ForMember(x => x.clock_rate, cx => cx.MapFrom(x => x.ClockRate))
+                .ForMember(x => x.ec_options, cx => cx.MapFrom(x => x.EcOptions))
+                .ForMember(x => x.ec_tail_len, cx => cx.MapFrom(x => x.EcTailLen))
                 .ForMember(x => x.enable_ice, cx => cx.MapFrom(x => Convert.ToInt32(x.EnableICE)))
                 .ForMember(x => x.enable_turn, cx => cx.MapFrom(x => Convert.ToInt32(x.EnableTurn)))
                 .ForMember(x => x.has_ioqueue, cx => cx.MapFrom(x => Convert.ToInt32(x.HasIOQueue)))
                 .ForMember(x => x.ice_max_host_cands, cx => cx.Ignore())
                 .ForMember(x => x.ice_no_rtcp, cx => cx.MapFrom(x => Convert.ToInt32(x.ICENoRtcp)))
                 .ForMember(x => x.ice_opt, cx => cx.Ignore())
-                //.ForMember(x => x.ilbc_mode, cx => cx.MapFrom(x => x.ILBCMode))
+                .ForMember(x => x.ilbc_mode, cx => cx.MapFrom(x => x.ILBCMode))
                 .ForMember(x => x.jb_init, cx => cx.Ignore())
                 .ForMember(x => x.jb_max, cx => cx.Ignore())
                 .ForMember(x => x.jb_max_pre, cx => cx.Ignore())
                 .ForMember(x => x.jb_min_pre, cx => cx.Ignore())
-                //.ForMember(x => x.max_media_ports, cx => cx.MapFrom(x => x.MaxMediaPorts))
+                .ForMember(x => x.max_media_ports, cx => cx.MapFrom(x => x.MaxMediaPorts))
                 .ForMember(x => x.no_vad, cx => cx.MapFrom(x => Convert.ToInt32(!x.IsVadEnabled)))
                 .ForMember(x => x.ptime, cx => cx.Ignore())
-                //.ForMember(x => x.quality, cx => cx.MapFrom(x => x.Quality))
+                .ForMember(x => x.quality, cx => cx.MapFrom(x => x.Quality))
                 .ForMember(x => x.rx_drop_pct, cx => cx.Ignore())
                 .ForMember(x => x.tx_drop_pct, cx => cx.Ignore())
                 .ForMember(x => x.snd_auto_close_time, cx => cx.MapFrom(x => x.SoundDeviceAutoCloseTime.Milliseconds))
-                //.ForMember(x => x.snd_clock_rate, cx => cx.MapFrom(x => x.SoundDeviceClockRate))
+                .ForMember(x => x.snd_clock_rate, cx => cx.MapFrom(x => x.SndClockRate))
                 .ForMember(x => x.snd_play_latency, cx => cx.Ignore())
                 .ForMember(x => x.snd_rec_latency, cx => cx.Ignore())
-                //.ForMember(x => x.thread_cnt, cx => cx.MapFrom(x => x.ThreadCount))
+                .ForMember(x => x.thread_cnt, cx => cx.MapFrom(x => x.ThreadCnt))
                 .ForMember(x => x.turn_auth_cred, cx => cx.MapFrom(x => x.TurnAuthentication.ToStunAuthCredential()))
                 .ForMember(x => x.turn_conn_type, cx => cx.MapFrom(x => (pj_turn_tp_type) x.TurnConnectionType))
                 .ForMember(x => x.turn_server, cx => cx.MapFrom(x => new pj_str_t(x.TurnServer)));
-            Mapper.CreateMap<pjsua_media_config, MediaConfig>().WithProfile("pjsua2pjsip4net")
-                //.ForMember(x => x.AudioFramePerTime, cx => cx.MapFrom(x => x.audio_frame_ptime))
-                //.ForMember(x => x.ChannelCount, cx => cx.MapFrom(x => x.channel_count))
-                //.ForMember(x => x.ClockRate, cx => cx.MapFrom(x => x.clock_rate))
-                //.ForMember(x => x.EcOptions, cx => cx.MapFrom(x => x.ec_options))
-                //.ForMember(x => x.EcTailLength, cx => cx.MapFrom(x => x.ec_tail_len))
+            Mapper.CreateMap<pjsua_media_config, MediaConfig>()//.WithProfile("pjsua2pjsip4net")
+                .ForMember(x => x.AudioFramePtime, cx => cx.MapFrom(x => x.audio_frame_ptime))
+                .ForMember(x => x.ChannelCount, cx => cx.MapFrom(x => x.channel_count))
+                .ForMember(x => x.ClockRate, cx => cx.MapFrom(x => x.clock_rate))
+                .ForMember(x => x.EcOptions, cx => cx.MapFrom(x => x.ec_options))
+                .ForMember(x => x.EcTailLen, cx => cx.MapFrom(x => x.ec_tail_len))
                 .ForMember(x => x.EnableICE, cx => cx.MapFrom(x => Convert.ToBoolean(x.enable_ice)))
                 .ForMember(x => x.EnableTurn, cx => cx.MapFrom(x => Convert.ToBoolean(x.enable_turn)))
                 .ForMember(x => x.HasIOQueue, cx => cx.MapFrom(x => Convert.ToBoolean(x.has_ioqueue)))
                 .ForMember(x => x.ICENoRtcp, cx => cx.MapFrom(x => Convert.ToBoolean(x.ice_no_rtcp)))
-                //.ForMember(x => x.ILBCMode, cx => cx.MapFrom(x => x.ilbc_mode))
-                //.ForMember(x => x.MaxMediaPorts, cx => cx.MapFrom(x => x.max_media_ports))
+                .ForMember(x => x.ILBCMode, cx => cx.MapFrom(x => x.ilbc_mode))
+                .ForMember(x => x.MaxMediaPorts, cx => cx.MapFrom(x => x.max_media_ports))
                 .ForMember(x => x.IsVadEnabled, cx => cx.MapFrom(x => !Convert.ToBoolean(x.no_vad)))
-                //.ForMember(x => x.Quality, cx => cx.MapFrom(x => x.quality))
+                .ForMember(x => x.Quality, cx => cx.MapFrom(x => x.quality))
                 .ForMember(x => x.SoundDeviceAutoCloseTime,
                            cx => cx.MapFrom(x => TimeSpan.FromMilliseconds(x.snd_auto_close_time)))
-                //.ForMember(x => x.SoundDeviceClockRate, cx => cx.MapFrom(x => x.snd_clock_rate))
-                //.ForMember(x => x.ThreadCount, cx => cx.MapFrom(x => x.thread_cnt))
+                .ForMember(x => x.SndClockRate, cx => cx.MapFrom(x => x.snd_clock_rate))
+                .ForMember(x => x.ThreadCnt, cx => cx.MapFrom(x => x.thread_cnt))
                 .ForMember(x => x.TurnAuthentication, cx => cx.MapFrom(x => x.turn_auth_cred.ToNetworkCredential()))
                 .ForMember(x => x.TurnConnectionType, cx => cx.MapFrom(x => (TransportType) x.turn_conn_type))
-                .ForMember(x => x.TurnServer, cx => cx.MapFrom(x => (string) x.turn_server));
+                .ForMember(x => x.TurnServer, cx => cx.MapFrom(x => (string) x.turn_server))
+                .ForMember(x => x.CaptureDeviceId, cx => cx.Ignore())
+                .ForMember(x => x.PlaybackDeviceId, cx => cx.Ignore());
 
             Mapper.CreateMap<TransportConfig, pjsua_transport_config>()
                 .ForMember(x => x.bound_addr, cx => cx.MapFrom(x => new pj_str_t(x.BoundAddress)))
@@ -191,17 +196,31 @@ namespace pjsip.Interop.Services
                 .ConvertUsing(new AccountInfoConverter());
             Mapper.CreateMap<pjsua_call_info, CallInfo>()
                 .ConvertUsing(new CallInfoConverter());
-            Mapper.CreateMap<pjsua_conf_port_info, ConferencePortInfo>().WithProfile("pjsua2pjsip4net")
-                .ForMember(x => x.Listeners, cx => cx.MapFrom(x => new List<int>(x.listeners)));
+            Mapper.CreateMap<pjsua_conf_port_info, ConferencePortInfo>()//.WithProfile("pjsua2pjsip4net")
+                .ForMember(x => x.Listeners, cx => cx.MapFrom(x => new List<int>(x.listeners)))
+                .ForMember(x => x.SlotId, cx => cx.MapFrom(x => x.slot_id))
+                .ForMember(x => x.ClockRate, cx => cx.MapFrom(x => x.clock_rate))
+                .ForMember(x => x.ChannelCount, cx => cx.MapFrom(x => x.channel_count))
+                .ForMember(x => x.SamplesPerFrame, cx => cx.MapFrom(x => x.samples_per_frame))
+                .ForMember(x => x.BitsPerSample, cx => cx.MapFrom(x => x.bits_per_sample));
                 //.ConvertUsing<ConferencePortInfoConverter>();
-            Mapper.CreateMap<pjmedia_snd_dev_info, SoundDeviceInfo>().WithProfile("pjsua2pjsip4net")
-                .ForMember(x => x.Id, cx => cx.Ignore());
+            Mapper.CreateMap<pjmedia_snd_dev_info, SoundDeviceInfo>()//.WithProfile("pjsua2pjsip4net")
+                .ForMember(x => x.Id, cx => cx.Ignore())
+                .ForMember(x => x.InputCount, cx => cx.MapFrom(x => x.input_count))
+                .ForMember(x => x.OutputCount, cx => cx.MapFrom(x => x.output_count))
+                .ForMember(x => x.DefaultSamplesPerSec, cx => cx.MapFrom(x => x.default_samples_per_sec));
                 //.ConvertUsing<SoundDeviceInfoConverter>();
-            Mapper.CreateMap<pjsua_codec_info, CodecInfo>().WithProfile("pjsua2pjsip4net")
-                .ConstructUsing(pci => _container.Get<CodecInfo>());
-            Mapper.CreateMap<pjsua_buddy_info, BuddyInfo>().WithProfile("pjsua2pjsip4net")
+            Mapper.CreateMap<pjsua_codec_info, CodecInfo>()//.WithProfile("pjsua2pjsip4net")
+                .ConstructUsing(pci => _container.Get<CodecInfo>())
+                .ForMember(x => x.CodecId, cx => cx.MapFrom(x => x.codec_id));
+            Mapper.CreateMap<pjsua_buddy_info, BuddyInfo>()//.WithProfile("pjsua2pjsip4net")
                 .ForMember(x => x.Status, cx => cx.MapFrom(x => (BuddyStatus)x.status))
                 .ForMember(x => x.SubState, cx => cx.MapFrom(x => (SubscriptionState)x.sub_state))
+                .ForMember(x => x.StatusText, cx => cx.MapFrom(x => (string)x.status_text))
+                .ForMember(x => x.MonitorPresence, cx => cx.MapFrom(x => Convert.ToBoolean(x.monitor_pres)))
+                .ForMember(x => x.SubscriptionStateName, cx => cx.MapFrom(x => x.sub_state_name))
+                .ForMember(x => x.SubTermReason, cx => cx.MapFrom(x => (string)x.sub_term_reason))
+                .ForMember(x => x.Buffer, cx => cx.MapFrom(x => x.buf_))
                 .ForMember(x => x.Rpid, cx => cx.MapFrom(x => new RpidElement()
                                                                   {
                                                                       Activity = (RpidActivity) x.rpid.activity,

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{77160365-9A80-4F6A-9BD7-4F0532BE0EB0}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -36,6 +36,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\Account.cs" />
@@ -45,10 +46,14 @@
     <Compile Include="Accounts\AccountStateChangedEventArgs.cs" />
     <Compile Include="Configuration\BuildUserAgent.cs" />
     <Compile Include="Configuration\ConfigureFromConfig.cs" />
-    <Compile Include="DefaultComponentConfigurator.cs" />
+    <Compile Include="Configuration\DefaultAccountComponentConfigurator.cs" />
+    <Compile Include="Configuration\DefaultCallComponentConfigurator.cs" />
+    <Compile Include="Configuration\DefaultComponentConfigurator.cs" />
+    <Compile Include="Configuration\DefaultMediaComponentConfigurator.cs" />
     <Compile Include="DefaultLocalRegistry.cs" />
     <Compile Include="DefaultObjectFactory.cs" />
     <Compile Include="DefaultSipUserAgent.cs" />
+    <Compile Include="Configuration\DefaultTransportComponentConfigurator.cs" />
     <Compile Include="Interfaces\IAccountManager.cs" />
     <Compile Include="Accounts\RegistrationSession.cs" />
     <Compile Include="Buddy\Buddy.cs" />
@@ -98,8 +103,6 @@
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="Media\DefaultConferenceBridge.cs" />
     <Compile Include="Interfaces\IMediaManager.cs" />
-    <Compile Include="Media\ISlotVisitor.cs" />
-    <Compile Include="Media\MediaComponentConfigurator.cs" />
     <Compile Include="Media\DefaultMediaManager.cs" />
     <Compile Include="Media\SoundDevice.cs" />
     <Compile Include="Media\WavPlayer.cs" />

@@ -27,7 +27,6 @@ namespace pjsip4net.Core.Data
         /// </summary>
         public int SecureSignalling { get; set; }
         public uint ThreadCount { get; set; }
-        public int ForceLr { get; set; }
         public bool StunIgnoreFailure { get; set; }
         //public int require_timer;
         //public pjsip_timer_setting timer_setting;

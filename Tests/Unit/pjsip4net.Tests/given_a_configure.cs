@@ -1,9 +1,11 @@
+using Moq;
 using NUnit.Framework;
 using pjsip4net.Configuration;
 using pjsip4net.Core.Configuration;
 using pjsip4net.Core.Container;
 using pjsip4net.Core.Interfaces;
-using Rhino.Mocks;
+using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.AutoMoq;
 
 namespace pjsip4net.Tests
 {
@@ -11,13 +13,15 @@ namespace pjsip4net.Tests
     public class given_a_configure
     {
         private Configure _sut;
-        private IContainer _container;
+        private Mock<IContainer> _container;
+        protected IFixture _fixture;
 
         [SetUp]
         public void Setup()
         {
-            _sut = Configure.Pjsip4Net();
-            _container = MockRepository.GenerateMock<IContainer>();
+            _fixture = new Fixture().Customize(new AutoMoqCustomization());
+            _sut = _fixture.CreateAnonymous<Configure>();//.WithVersion_For_Tests();
+            _container = _fixture.Freeze<Mock<IContainer>>();
         }
 
         [TearDown]
@@ -36,9 +40,16 @@ namespace pjsip4net.Tests
         [Test]
         public void when_build_called_then_it_should_register_container_in_container()
         {
-            _container.Expect(x => x.RegisterAsSingleton(Arg<IContainer>.Is.Equal(_sut.Container)));
+            ConfigureContainer.Set(_container.Object, _sut);
             _sut.Build();
-            _container.VerifyAllExpectations();
+            _container.Verify(x => x.RegisterAsSingleton(It.Is<IContainer>(x1 => x.Equals(_sut.Container))),
+                              Times.Exactly(1));
+        }
+
+        public void when_build_called__then_it_should_register_and_call_all_default_component_configurators()
+        {
+            ConfigureContainer.Set(_container.Object, _sut);
+
         }
     }
 }

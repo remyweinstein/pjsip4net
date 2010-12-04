@@ -22,6 +22,7 @@ namespace pjsip4net.Interfaces
 
     internal interface IMediaManagerInternal : IMediaManager, IInitializable
     {
+        void SetDevices();
         //void SetConfiguration(MediaConfig mediaConfig);
     }
 }

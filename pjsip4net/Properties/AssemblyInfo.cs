@@ -40,5 +40,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.1.*")]
 
 [assembly: InternalsVisibleTo("pjsip4net.Tests, PublicKeyToken=null", AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo("Rhino.Mocks")]
+[assembly: InternalsVisibleTo("Ploeh.AutoFixture")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
