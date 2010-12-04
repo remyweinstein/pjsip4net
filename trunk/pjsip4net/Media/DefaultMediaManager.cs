@@ -29,7 +29,7 @@ namespace pjsip4net.Media
             _registry = registry;
             _mediaApi = mediaApi;
 
-            SetDevices();
+            //SetDevices();
         }
 
         #region Private Data
@@ -180,7 +180,7 @@ namespace pjsip4net.Media
             //BusyRinger = new WavPlayer(@"Sounds\busy.wav", true);
         }
 
-        private void SetDevices()
+        public void SetDevices()
         {
             //if (_curCapture == null && _curPlayback == null)
             {

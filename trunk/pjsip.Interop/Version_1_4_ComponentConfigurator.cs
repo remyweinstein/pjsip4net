@@ -30,17 +30,18 @@ namespace pjsip.Interop
         private void RegisterApplicationServices(IContainer container)
         {
             var pipe = PipeSegment.Input(PipeSegment.End());
-            container.RegisterAsSingleton(pipe);
+            container.RegisterAsSingleton((Pipe)pipe);
             container.RegisterAsSingleton<IEventsProvider, EventsProvider>();
         }
 
         private void RegisterMappingServices(IContainer container)
         {
-            container.RegisterAsSingleton<ITypeMapFactory, TypeMapFactory>()
-                .RegisterAsSingleton<IConfiguration>(new Configuration(container.Get<ITypeMapFactory>(),
-                                                                       MapperRegistry.AllMappers()))
-                .RegisterAsSingleton((IConfigurationProvider) container.Get<IConfiguration>())
-                .RegisterAsSingleton<IMappingEngine, MappingEngine>()
+            //container.RegisterAsSingleton<ITypeMapFactory, TypeMapFactory>()
+            //    .RegisterAsSingleton<IConfiguration>(new Configuration(container.Get<ITypeMapFactory>(),
+            //                                                           MapperRegistry.AllMappers()))
+            //    .RegisterAsSingleton((IConfigurationProvider) container.Get<IConfiguration>())
+            container
+                .RegisterAsSingleton(Mapper.Engine)
                 .RegisterAsSingleton<IMapper, AutoMappingMapper>();
 
             //add mappers

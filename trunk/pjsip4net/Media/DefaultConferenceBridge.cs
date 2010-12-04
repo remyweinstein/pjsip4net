@@ -9,7 +9,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Media
 {
-    public class DefaultConferenceBridge : IConferenceBridge
+    internal class DefaultConferenceBridge : IConferenceBridge
     {
         #region Private Data
 
@@ -60,7 +60,7 @@ namespace pjsip4net.Media
 
         #region Methods
 
-        internal DefaultConferenceBridge(IMediaApiProvider mediaApi)
+        public DefaultConferenceBridge(IMediaApiProvider mediaApi)
         {
             _mediaApi = mediaApi;
         }

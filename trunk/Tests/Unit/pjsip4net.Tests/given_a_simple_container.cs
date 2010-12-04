@@ -35,6 +35,10 @@ namespace pjsip4net.Tests
             _sut = null;
         }
 
+       //todo: write tests for equal interfaces registered being registered in different combinations 
+        //(unnamed transients[throws], unnamed singletons[throws], unnamed transient & singleton [throws], 
+        //reversed [throws], one named & the other is not [does not throw in different combinations]
+        
         [Test]
         public void when_one_transient_configuration_without_dependencies_registered_then_resolves_type_correctly()
         {

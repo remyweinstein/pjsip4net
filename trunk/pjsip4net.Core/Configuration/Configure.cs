@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using pjsip4net.Core.Container;
 using pjsip4net.Core.Data;
 using pjsip4net.Core.Interfaces;
@@ -25,12 +26,10 @@ namespace pjsip4net.Core.Configuration
 
         internal IContainer Container { get; set; }
 
-        internal Configure()
+        public Configure()//todo: investigate whether it is possible to give an autofixture an instance of public class with internal ctor
         {
             Container = new SimpleContainer();
             _tptConfigurator = _defaultTptConfig;
-            //_configurators.Add(new DefaultComponentConfigurator());
-            //_configurators.Add(new MediaComponentConfigurator());
         }
 
         public static Configure Pjsip4Net()
@@ -50,6 +49,11 @@ namespace pjsip4net.Core.Configuration
             Helper.GuardNotNull(provider);
             _configProviders.Add(provider);
             return this;
+        }
+
+        public Configure With(IConfigureComponents componentsConfigurator)
+        {
+            return AddComponentConfigurator(componentsConfigurator);
         }
 
         public Configure WithSipTransport(Func<ITransportApiProvider, Tuple<TransportType, TransportConfig>> tptConfigurator)
@@ -88,12 +92,12 @@ namespace pjsip4net.Core.Configuration
 
         internal Tuple<TransportType, TransportConfig> GetConfiguredTransport(ITransportApiProvider transportApiProvider)
         {
-            return _tptConfigurator(transportApiProvider);
+            return _tptConfigurator != null ? _tptConfigurator(transportApiProvider) : null;
         }
 
         internal IEnumerable<AccountConfig> GetConfiguredAccounts(IAccountApiProvider accountApiProvider)
         {
-            return _accConfigurator(accountApiProvider);
+            return _accConfigurator != null ? _accConfigurator(accountApiProvider) : Enumerable.Empty<AccountConfig>();
         }
     }
 }

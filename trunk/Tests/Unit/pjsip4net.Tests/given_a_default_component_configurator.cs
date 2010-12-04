@@ -1,44 +1,44 @@
 using System;
+using Moq;
 using NUnit.Framework;
+using pjsip4net.Configuration;
 using pjsip4net.Core.Interfaces;
+using pjsip4net.IM;
+using pjsip4net.IM.Dsl;
 using pjsip4net.Interfaces;
-using Rhino.Mocks;
 
 namespace pjsip4net.Tests
 {
     [TestFixture]
-    public class given_a_default_component_configurator
+    public class given_a_default_component_configurator : given_a_component_configurator<DefaultComponentConfigurator>
     {
-        private DefaultComponentConfigurator _sut;
-        private IContainer _container;
-
-        [SetUp]
-        public void TestSetup()
+        [Test]
+        public void when_configure_is_called__should_register_default_objectFactory()
         {
-            _sut = new DefaultComponentConfigurator();
-            _container = MockRepository.GenerateMock<IContainer>();
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            _sut = null;
-            _container = null;
-        }
-
-        [Test, ExpectedException(typeof(ArgumentNullException))]
-        public void when_configure_is_called_with_null_container_should_throw_exception()
-        {
-            _sut.Configure(null);
-            Assert.Fail("Should have thrown an exception");
+            when_configure_called();
+            _container.Verify(x => x.RegisterAsSingleton<IObjectFactory, DefaultObjectFactory>(), Times.Exactly(1));
         }
         
         [Test]
-        public void when_configure_is_called__should_register_DefaultObjectFactory()
+        public void when_configure_is_called__should_register_default_localRegistry_with_configCtx()
         {
-            _container.Expect(x => x.RegisterAsSingleton<IObjectFactory, DefaultObjectFactory>()).Repeat.Once();
-            _sut.Configure(_container);
-            _container.VerifyAllExpectations();
+            when_configure_called();
+            _container.Verify(x => x.RegisterAsSingleton<ILocalRegistry, DefaultLocalRegistry>(), Times.Exactly(1));
+            _container.Verify(x => x.RegisterAsSingleton(It.IsAny<IConfigurationContext>()), Times.Exactly(1));
+        }
+
+        [Test]
+        public void when_configure_is_called__should_register_default_im_manager_as_singleton()
+        {
+            when_configure_called();
+            _container.Verify(x => x.RegisterAsSingleton<IImManager, DefaultImManager>());
+        }
+
+        [Test]
+        public void when_configure_is_called__should_register_default_message_builder_as_transient()
+        {
+            when_configure_called();
+            _container.Verify(x => x.Register<IMessageBuilder, DefaultMessageBuilder>());
         }
     }
 }

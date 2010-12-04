@@ -33,7 +33,10 @@ namespace pjsip4net.Configuration
             }
 
             cfg.AddComponentConfigurator(new DefaultComponentConfigurator())
-                .AddComponentConfigurator(new MediaComponentConfigurator()).RunConfigurators();
+                .AddComponentConfigurator(new DefaultTransportComponentConfigurator())
+                .AddComponentConfigurator(new DefaultAccountComponentConfigurator())
+                .AddComponentConfigurator(new DefaultCallComponentConfigurator())
+                .AddComponentConfigurator(new DefaultMediaComponentConfigurator()).RunConfigurators();
 
             var localRegistry = cfg.Container.Get<ILocalRegistry>();
 
@@ -115,6 +118,10 @@ namespace pjsip4net.Configuration
 
             var basicApiProvider = cfg.Container.Get<IBasicApiProvider>();
             basicApiProvider.Start();
+
+            var mediaMgr = cfg.Container.Get<IMediaManagerInternal>();
+            Helper.GuardNotNull(mediaMgr);
+            mediaMgr.SetDevices();
 
             var objectFactory = cfg.Container.Get<IObjectFactory>();
             var accMgr = cfg.Container.Get<IAccountManager>();

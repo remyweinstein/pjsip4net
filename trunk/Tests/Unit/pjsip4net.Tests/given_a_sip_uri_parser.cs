@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using pjsip4net.Core;
-using pjsip4net.Core.Interfaces.ApiProviders;
 using pjsip4net.Core.Utils;
-using pjsip4net.IM;
-using Rhino.Mocks;
 
 namespace pjsip4net.Tests
 {
@@ -11,9 +8,9 @@ namespace pjsip4net.Tests
     /// Summary description for SipUriParserTests
     /// </summary>
     [TestFixture]
-    public class SipUriParserTests
+    public class given_a_sip_uri_parser
     {
-        public SipUriParserTests()
+        public given_a_sip_uri_parser()
         {
             //
             // TODO: Add constructor logic here
@@ -21,10 +18,8 @@ namespace pjsip4net.Tests
         }
 
         [Test]
-        public void Parse_ValidSipUriWithDomainAsIP_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_domain_as_IP__should_fill_valid_properties()
         {
-            var basicApi = MockRepository.GenerateStub<IBasicApiProvider>();
-
             var sut = new SipUriParser("<sip:12.25.12.1>");
 
             Assert.AreEqual("12.25.12.1", sut.Domain);
@@ -34,55 +29,55 @@ namespace pjsip4net.Tests
         }
         
         [Test]
-        public void Parse_ValidSipUriWithDomainAsDns_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_domain_as_dns__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:doxwox.com");
+            var sut = new SipUriParser("sip:tempuri.org");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("", sut.Extension);
             Assert.AreEqual("5060", sut.Port);
             Assert.AreEqual("", sut.Password);
         }
         
         [Test]
-        public void Parse_ValidSipUriWithAlfabetExtensionAndDomainAsDns_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_alfabet_extension_and_domain_as_dns__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:test@doxwox.com");
+            var sut = new SipUriParser("sip:test@tempuri.org");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("test", sut.Extension);
             Assert.AreEqual("5060", sut.Port);
             Assert.AreEqual("", sut.Password);
         }
         
         [Test]
-        public void Parse_ValidSipUriWithAlfabetExtensionAndDomainAsDnsAndPort_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_alfabet_extension_and_domain_as_dns_and_port__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:test@doxwox.com:5080");
+            var sut = new SipUriParser("sip:test@tempuri.org:5080");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("test", sut.Extension);
             Assert.AreEqual("5080", sut.Port);
             Assert.AreEqual("", sut.Password);
         }
         
         [Test]
-        public void Parse_ValidSipUriWithAlfabetExtensionAndPwdAndDomainAsDnsAndPort_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_alfabet_extension_and_pwd_and_domain_as_dns_and_port__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:test:test@doxwox.com:5080");
+            var sut = new SipUriParser("sip:test:test@tempuri.org:5080");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("test", sut.Extension);
             Assert.AreEqual("5080", sut.Port);
             Assert.AreEqual("test", sut.Password);
         }
         
         [Test]
-        public void Parse_ValidSipUriWithAlfabetExtensionAndPwdAndDomainAsDnsAndPortWithTransportHeader_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_alfabet_extension_and_pwd_and_domain_as_dns_and_port_with_transport_header__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:test:test@doxwox.com:5080;transport=tcp");
+            var sut = new SipUriParser("sip:test:test@tempuri.org:5080;transport=tcp");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("test", sut.Extension);
             Assert.AreEqual("5080", sut.Port);
             Assert.AreEqual("test", sut.Password);
@@ -91,11 +86,11 @@ namespace pjsip4net.Tests
         }
         
         [Test]
-        public void Parse_ValidSipUriWithAlfabetDomainAsDnsWithTransportHeader_ValidPropertiesFilled()
+        public void when_parse_called_with_valid_sip_uri_with_alfabet_domain_as_dns_with_transport_header__should_fill_valid_properties()
         {
-            var sut = new SipUriParser("sip:doxwox.com;transport=tcp");
+            var sut = new SipUriParser("sip:tempuri.org;transport=tcp");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("", sut.Extension);
             Assert.AreEqual("5060", sut.Port);
             Assert.AreEqual("", sut.Password);
@@ -106,9 +101,9 @@ namespace pjsip4net.Tests
         [Ignore]
         public void Parse_ValidSipUriWithAlfabetDomainAsDnsWithTransportHeaderAndSomaOtherHeader_ValidPropertiesFilled()
         {
-            var sut = new SipUriParser("sip:doxwox.com;transport=tcp;otherheader");
+            var sut = new SipUriParser("sip:tempuri.org;transport=tcp;otherheader");
 
-            Assert.AreEqual("doxwox.com", sut.Domain);
+            Assert.AreEqual("tempuri.org", sut.Domain);
             Assert.AreEqual("", sut.Extension);
             Assert.AreEqual("5060", sut.Port);
             Assert.AreEqual("", sut.Password);
