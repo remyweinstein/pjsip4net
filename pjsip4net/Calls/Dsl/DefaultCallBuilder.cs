@@ -1,5 +1,4 @@
 ﻿using pjsip4net.Accounts;
-using pjsip4net.Core.Interfaces;
 using pjsip4net.Core.Utils;
 using pjsip4net.Interfaces;
 
@@ -8,7 +7,7 @@ namespace pjsip4net.Calls.Dsl
     public class DefaultCallBuilder : ICallBuilder
     {
         private readonly SipUriBuilder _sb = new SipUriBuilder();
-        protected Account _account;
+        protected IAccount _account;
         private ICallManagerInternal _callManager;
         private IAccountManager _accountManager;
 

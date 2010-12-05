@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AutoMapper;
 using pjsip4net.Core.Data;
+using pjsip4net.Core.Utils;
 
 namespace pjsip.Interop.Services
 {
@@ -18,15 +19,15 @@ namespace pjsip.Interop.Services
             rx.contact_params = new pj_str_t(x.ContactParams);
             rx.contact_uri_params = new pj_str_t(x.ContactUriParams);
             rx.cred_count = (uint) x.Credentials.Count;
-            rx.cred_info = x.Credentials.Select(c => c.ToPjsipCredentialsInfo()).ToArray();
+            rx.cred_info = x.Credentials.Select(c => c.ToPjsipCredentialsInfo()).GrowWithDefaultTo(8).ToArray();
             rx.force_contact = new pj_str_t(x.ForceContact);
             rx.id = new pj_str_t(x.Id);
             rx.ka_data = new pj_str_t(x.KaData);
             rx.ka_interval = x.KaInterval;
             rx.pidf_tuple_id = new pj_str_t(x.PidfTupleId);
             rx.priority = x.Priority;
-            rx.proxy_cnt = (uint) x.Proxy.Count;
-            rx.proxy = x.Proxy.Select(s => new pj_str_t(s)).ToArray();
+            rx.proxy_cnt = (uint) x.Proxy.Count;//make always 
+            rx.proxy = x.Proxy.Select(s => new pj_str_t(s)).GrowWithDefaultTo(8).ToArray();
             rx.publish_enabled = System.Convert.ToInt32(x.IsPublishEnabled);
             rx.reg_timeout = x.RegTimeout;
             rx.reg_uri = new pj_str_t(x.RegUri);

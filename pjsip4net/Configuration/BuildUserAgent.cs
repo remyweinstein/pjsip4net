@@ -103,8 +103,6 @@ namespace pjsip4net.Configuration
             var transportFactory = cfg.Container.Get<IVoIPTransportFactory>();
             localRegistry.SipTransport = transportFactory.CreateTransport(localRegistry.TransportConfig.Part1,
                                                                           localRegistry.TransportConfig.Part2);
-            using (localRegistry.SipTransport.InitializationScope())
-                localRegistry.SipTransport.SetConfig(localRegistry.TransportConfig.Part2);
             var tptApiProvider = cfg.Container.Get<ITransportApiProvider>();
             localRegistry.SipTransport.SetId(
                 tptApiProvider.CreateTransportAndGetId(localRegistry.SipTransport.TransportType,
@@ -124,9 +122,9 @@ namespace pjsip4net.Configuration
             mediaMgr.SetDevices();
 
             var objectFactory = cfg.Container.Get<IObjectFactory>();
-            var accMgr = cfg.Container.Get<IAccountManager>();
+            var accMgr = cfg.Container.Get<IAccountManagerInternal>();
             //always register local account first
-            var account = objectFactory.Create<Account>();
+            var account = objectFactory.Create<IAccountInternal>();
             using (account.InitializationScope())
             {
                 account.IsLocal = true;

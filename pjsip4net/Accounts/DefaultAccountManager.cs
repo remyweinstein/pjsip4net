@@ -32,7 +32,7 @@ namespace pjsip4net.Accounts
 
         //#endregion
 
-        private readonly SortedDictionary<int, Account> _accounts;
+        private readonly SortedDictionary<int, IAccountInternal> _accounts;
         //private SynchronizationContext _syncContext;
         private Queue<Account> _deleting;
         private ILocalRegistry _localRegistry;
@@ -43,16 +43,16 @@ namespace pjsip4net.Accounts
 
         public event EventHandler<AccountStateChangedEventArgs> AccountStateChanged = delegate { };
 
-        public ReadOnlyCollection<Account> Accounts
+        public ReadOnlyCollection<IAccount> Accounts
         {
             get
             {
                 lock (_lock)
-                    return new ReadOnlyCollection<Account>(_accounts.Values.Where(t => !t.IsLocal).ToList());
+                    return new ReadOnlyCollection<IAccount>(_accounts.Values.Where(t => !t.IsLocal).Cast<IAccount>().ToList());
             }
         }
 
-        public Account DefaultAccount
+        public IAccount DefaultAccount
         {
             get
             {
@@ -88,11 +88,11 @@ namespace pjsip4net.Accounts
             Account account = null;
             lock (_lock)
                 if (_accounts.ContainsKey(e.Id) && _accounts[e.Id] != null)
-                    account = _accounts[e.Id];
+                    account = (Account) _accounts[e.Id];
             if (account != null) account.HandleStateChanged();
         }
 
-        public void RaiseStateChanged(Account account)
+        public void RaiseStateChanged(IAccountInternal account)
         {
             //try
             //{
@@ -107,27 +107,27 @@ namespace pjsip4net.Accounts
             //}
         }
 
-        public void RegisterAccount(Account account, bool @default)
+        public void RegisterAccount(IAccountInternal account, bool @default)
         {
             Helper.GuardNotNull(account);
 
             lock (_lock)
             {
-                account.Transport = account.Transport ?? _localRegistry.SipTransport;
+                if (account.Transport != null) 
+                    account.SetTransport(_localRegistry.SipTransport);
                 int id = -1;
                 if (account.IsLocal)
-
                     id = _provider.AddLocalAccountAndGetId(_localRegistry.SipTransport.Id, @default);
                 else
-                    id = _provider.AddAccountAndGetId(account._config, @default);
+                    id = _provider.AddAccountAndGetId(account.Config, @default);
 
-                account.Id = id;
+                account.SetId(id);
                 _accounts.Add(account.Id, account);
                 account.HandleStateChanged();
             }
         }
 
-        public void UnregisterAccount(Account account)
+        public void UnregisterAccount(IAccountInternal account)
         {
             if (account.IsInUse)
                 throw new InvalidOperationException("Can't delete account as long as it's being used by other parties");
@@ -141,14 +141,14 @@ namespace pjsip4net.Accounts
                     //_deleting.Enqueue(account);//TODO raise events for accounts being deleted
                     _provider.DeleteAccount(account.Id);
                     _accounts.Remove(account.Id);
-                    account.Id = -1;
+                    account.SetId(-1);
                     if (account.IsLocal)
                         account.HandleStateChanged();
                     account.InternalDispose();
                 }
         }
 
-        public Account GetAccountById(int id)
+        public IAccount GetAccountById(int id)
         {
             lock (_lock)
                 if (_accounts.ContainsKey(id))
@@ -161,6 +161,14 @@ namespace pjsip4net.Accounts
             foreach (Account account in _accounts.Values.ToList())
                 UnregisterAccount(account);
             Thread.Sleep(1000);
+        }
+
+        public IAccountInternal GetAccount(int id)
+        {
+            lock (_lock)
+                if (_accounts.ContainsKey(id))
+                    return _accounts[id];
+            return null;
         }
 
         public override void EndInit()
@@ -180,7 +188,7 @@ namespace pjsip4net.Accounts
             _provider = accountApi;
             _eventsProvider = eventsProvider;
             _localRegistry = localRegistry;
-            _accounts = new SortedDictionary<int, Account>();
+            _accounts = new SortedDictionary<int, IAccountInternal>();
             //_syncContext = SynchronizationContext.Current;
             _deleting = new Queue<Account>();
         }

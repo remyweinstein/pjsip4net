@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using pjsip4net.Accounts;
 using pjsip4net.Calls;
 using pjsip4net.Core.Data.Events;
 using pjsip4net.Core.Interfaces;
@@ -19,7 +18,7 @@ namespace pjsip4net.Interfaces
         event EventHandler<RingEventArgs> Ring;
         event EventHandler<CallTransferEventArgs> CallTransfer;
         Call MakeCall(string destinationUri);
-        Call MakeCall(Account account, string destinationUri);
+        Call MakeCall(IAccount account, string destinationUri);
         void HangupAll();
         Call GetCallById(int id);
     }

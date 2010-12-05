@@ -9,20 +9,22 @@ namespace pjsip4net.Interfaces
 {
     public interface IAccountManager
     {
-        ReadOnlyCollection<Account> Accounts { get; }
-        Account DefaultAccount { get; set; }
+        ReadOnlyCollection<IAccount> Accounts { get; }
+        IAccount DefaultAccount { get; set; }
         event EventHandler<AccountStateChangedEventArgs> AccountStateChanged;
-        void RegisterAccount(Account account, bool @default);
-        void UnregisterAccount(Account account);
-        Account GetAccountById(int id);
+        
+        IAccount GetAccountById(int id);
     }
 
     internal interface IAccountManagerInternal : IAccountManager, IInitializable
     {
         IAccountApiProvider Provider { get; }
 
-        void RaiseStateChanged(Account account);
+        void RegisterAccount(IAccountInternal account, bool @default);
+        void UnregisterAccount(IAccountInternal account);
+        void RaiseStateChanged(IAccountInternal account);
         void OnRegistrationState(RegistrationStateChanged e);
         void UnRegisterAllAccounts();
+        IAccountInternal GetAccount(int id);
     }
 }

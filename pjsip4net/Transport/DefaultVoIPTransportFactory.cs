@@ -26,7 +26,7 @@ namespace pjsip4net.Transport
         {
             var tpt = CreateTransport(transportType);
             using (((Initializable)tpt).InitializationScope())
-                tpt.SetConfig(config);
+                if (config != null) tpt.SetConfig(config);
             return tpt;
         }
 

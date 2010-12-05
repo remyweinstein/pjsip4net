@@ -22,7 +22,7 @@ namespace pjsip4net.Calls
         //private static CallManager _instance;
 
         public DefaultCallManager(IObjectFactory objectFactory, ICallApiProvider callApi, ILocalRegistry localRegistry, 
-            IBasicApiProvider basicApi, IMediaApiProvider mediaApi, IEventsProvider eventsProvider, IAccountManager accMgr)
+            IBasicApiProvider basicApi, IMediaApiProvider mediaApi, IEventsProvider eventsProvider, IAccountManagerInternal accMgr)
         {
             Helper.GuardNotNull(objectFactory);
             Helper.GuardNotNull(basicApi);
@@ -55,13 +55,13 @@ namespace pjsip4net.Calls
         private readonly IMediaApiProvider _mediaApi;
         private readonly IEventsProvider _eventsProvider;
         private readonly ILocalRegistry _localRegistry;
+        private readonly IAccountManagerInternal _accMgr;
 
         #endregion
 
         #region Properties
 
         private uint _maxCalls;
-        private readonly IAccountManager _accMgr;
         public event EventHandler<EventArgs<Call>> IncomingCall = delegate { };
         public event EventHandler<CallStateChangedEventArgs> CallStateChanged = delegate { };
         public event EventHandler<DtmfEventArgs> IncomingDtmfDigit = delegate { };
@@ -111,7 +111,7 @@ namespace pjsip4net.Calls
             return MakeCall(_accMgr.DefaultAccount, destinationUri);
         }
 
-        public Call MakeCall(Account account, string destinationUri)
+        public Call MakeCall(IAccount account, string destinationUri)
         {
             lock (_lock)
             {
@@ -119,7 +119,9 @@ namespace pjsip4net.Calls
                 Helper.GuardInRange(0u, MaxCalls - 1, (uint) _activeCalls.Count);
 
                 var result = _objectFactory.Create<Call>();
-                result.Account = account;
+                var acc = _accMgr.GetAccount(account.Id);
+                Helper.GuardNotNull(acc);
+                result.SetAccount(acc);
                 using (result.InitializationScope())
                     result.DestinationUri = destinationUri;
 
@@ -241,9 +243,9 @@ namespace pjsip4net.Calls
 
         public void OnIncomingCall(IncomingCallRecieved e)
         {
-            Account account = _accMgr.Accounts.SingleOrDefault(a => a.Id == e.AccountId);
+            IAccountInternal account = _accMgr.GetAccount(e.AccountId);
             if (account == null) // || !account.IsRegistered)
-                account = _accMgr.DefaultAccount;
+                account = _accMgr.GetAccount(_accMgr.DefaultAccount.Id);
 
             Debug.WriteLine("incoming call for account " + account.AccountId);
 
@@ -254,7 +256,7 @@ namespace pjsip4net.Calls
                 {
                     var call = _objectFactory.Create<Call>();
                     call.Id = e.CallId;
-                    call.Account = account;
+                    call.SetAccount(account);
                     AddCallAndUpdateEaCache(account.AccountId, call);
                     Monitor.Exit(_lock);
                     if (_localRegistry.Config.AutoAnswer)

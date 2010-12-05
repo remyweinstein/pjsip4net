@@ -15,6 +15,9 @@ namespace pjsip.Interop.ApiProviders
     {
         private IMapper _mapper;
         private Pipe _eventAggregator;
+        private pjsua_config _uaCfg;
+        private pjsua_logging_config _lCfg;
+        private pjsua_media_config _mCfg;
 
         public BasicApiProvider_1_4(IMapper mapper, Pipe eventAggregator)
         {
@@ -28,22 +31,22 @@ namespace pjsip.Interop.ApiProviders
 
         public UaConfig GetDefaultUaConfig()
         {
-            var cfg = new pjsua_config();
-            PJSUA_DLL.Basic.pjsua_config_default(cfg);
-            return _mapper.Map(cfg, new UaConfig());
+            _uaCfg = new pjsua_config();
+            PJSUA_DLL.Basic.pjsua_config_default(_uaCfg);
+            return _mapper.Map(_uaCfg, new UaConfig());
         }
 
         public LoggingConfig GetDefaultLoggingConfig()
         {
-            var lcfg = new pjsua_logging_config();
-            PJSUA_DLL.Basic.pjsua_logging_config_default(lcfg);
-            return _mapper.Map(lcfg, new LoggingConfig());
+            _lCfg = new pjsua_logging_config();
+            PJSUA_DLL.Basic.pjsua_logging_config_default(_lCfg);
+            return _mapper.Map(_lCfg, new LoggingConfig());
         }
 
         public void InitPjsua(UaConfig uaCfg, LoggingConfig logCfg, MediaConfig mediaCfg)
         {
-            var ua_cfg = _mapper.Map(uaCfg, new pjsua_config());
-            var l_cfg = _mapper.Map(logCfg, new pjsua_logging_config());
+            var ua_cfg = _mapper.Map(uaCfg, _uaCfg);
+            var l_cfg = _mapper.Map(logCfg, _lCfg);
             
             ua_cfg.cb.on_reg_state = OnRegState;
             
@@ -67,8 +70,8 @@ namespace pjsip.Interop.ApiProviders
             l_cfg.AnonymousMember1 = OnLog;
 
             //etc;
-
-            Helper.GuardError(PJSUA_DLL.Basic.pjsua_init(ua_cfg, l_cfg, _mapper.Map(mediaCfg, new pjsua_media_config())));
+            _mCfg = new pjsua_media_config();
+            Helper.GuardError(PJSUA_DLL.Basic.pjsua_init(ua_cfg, l_cfg, _mapper.Map(mediaCfg, _mCfg)));
         }
 
         

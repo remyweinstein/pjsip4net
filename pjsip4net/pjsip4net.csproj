@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{77160365-9A80-4F6A-9BD7-4F0532BE0EB0}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -54,6 +54,7 @@
     <Compile Include="DefaultObjectFactory.cs" />
     <Compile Include="DefaultSipUserAgent.cs" />
     <Compile Include="Configuration\DefaultTransportComponentConfigurator.cs" />
+    <Compile Include="Interfaces\IAccount.cs" />
     <Compile Include="Interfaces\IAccountManager.cs" />
     <Compile Include="Accounts\RegistrationSession.cs" />
     <Compile Include="Buddy\Buddy.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Calls\CallStateChangedEventArgs.cs" />
     <Compile Include="Calls\CallTransferEventArgs.cs" />
     <Compile Include="Calls\DtmfEventArgs.cs" />
+    <Compile Include="Interfaces\ICall.cs" />
     <Compile Include="Interfaces\ICallManager.cs" />
     <Compile Include="Calls\IncomingCallEventArgs.cs" />
     <Compile Include="Calls\InviteSession.cs" />
