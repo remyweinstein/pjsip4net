@@ -42,7 +42,7 @@ namespace pjsip4net.Tests
         {
             ConfigureContainer.Set(_container.Object, _sut);
             _sut.Build();
-            _container.Verify(x => x.RegisterAsSingleton(It.Is<IContainer>(x1 => x.Equals(_sut.Container))),
+            _container.Verify(x => x.RegisterAsSingleton(It.Is<IContainer>(x1 => _container.Object.Equals(_sut.Container))),
                               Times.Exactly(1));
         }
 

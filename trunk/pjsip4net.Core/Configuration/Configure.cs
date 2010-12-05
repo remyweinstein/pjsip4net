@@ -12,7 +12,7 @@ namespace pjsip4net.Core.Configuration
     public class Configure
     {
         private Func<ITransportApiProvider, Tuple<TransportType,TransportConfig>> _defaultTptConfig =
-            p => new Tuple<TransportType, TransportConfig>(TransportType.Udp, p.GetDefaultConfig());
+            p => new Tuple<TransportType, TransportConfig>(TransportType.Udp, null);
         private Func<ITransportApiProvider, Tuple<TransportType, TransportConfig>> _tptConfigurator;
         private Func<IAccountApiProvider, IEnumerable<AccountConfig>> _accConfigurator;
 

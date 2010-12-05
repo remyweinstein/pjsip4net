@@ -8,7 +8,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Transport
 {
-    public abstract class VoIPTransport : Initializable, IVoIPTransport
+    internal abstract class VoIPTransport : Initializable, IVoIPTransport
     {
         #region Protected Data
 
@@ -171,15 +171,16 @@ namespace pjsip4net.Transport
         {
             base.BeginInit();
             _config = _transportApiProvider.GetDefaultConfig();
+            _config.Port = 5060;
         }
 
         public override void EndInit()
         {
             base.EndInit();
             Helper.GuardInRange(1u, 65535u, Config.Port);
-            Id = _transportApiProvider.CreateTransportAndGetId(_transportType, _config);
-            Helper.GuardPositiveInt(Id);
-            _info = _transportApiProvider.GetTransportInfo(Id);
+            //Id = _transportApiProvider.CreateTransportAndGetId(_transportType, _config);
+            //Helper.GuardPositiveInt(Id);
+            //_info = _transportApiProvider.GetTransportInfo(Id);
         }
 
         #endregion
@@ -199,33 +200,30 @@ namespace pjsip4net.Transport
         #endregion
     }
 
-    public class UdpTransport : VoIPTransport
+    internal class UdpTransport : VoIPTransport
     {
-        internal UdpTransport(ITransportApiProvider transportApiProvider)
+        public UdpTransport(ITransportApiProvider transportApiProvider)
             : base(transportApiProvider)
         {
             _transportType = TransportType.Udp;
-            _config.Port = 5060;
         }
     }
 
-    public class TcpTransport : VoIPTransport
+    internal class TcpTransport : VoIPTransport
     {
-        internal TcpTransport(ITransportApiProvider transportApiProvider)
+        public TcpTransport(ITransportApiProvider transportApiProvider)
             : base(transportApiProvider)
         {
             _transportType = TransportType.Tcp;
-            _config.Port = 5060;
         }
     }
 
-    public class TlsTransport : VoIPTransport, ITlsTransport
+    internal class TlsTransport : VoIPTransport, ITlsTransport
     {
-        internal TlsTransport(ITransportApiProvider transportApiProvider)
+        public TlsTransport(ITransportApiProvider transportApiProvider)
             : base(transportApiProvider)
         {
             _transportType = TransportType.Tls;
-            _config.Port = 5061;
         }
 
         public String CAListFile
@@ -292,6 +290,12 @@ namespace pjsip4net.Transport
                 GuardNotInitializing();
                 _config.TlsSetting.RequireClientCert = value;
             }
+        }
+
+        public override void BeginInit()
+        {
+            base.BeginInit();
+            _config.Port = 5061;
         }
     }
 }

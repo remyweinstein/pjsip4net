@@ -9,15 +9,14 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
-    public class Call : Initializable, IIdentifiable<Call>
+    public class Call : Initializable, ICallInternal, IIdentifiable<Call>
     {
-
         #region Private data
 
         private readonly object _lock = new object();
         private readonly MediaSession _mediaSession;
         private readonly ICallManagerInternal _callManager;
-        private Account _account;
+        private IAccountInternal _account;
         private IDisposable _accountLock;
         internal InviteSession _inviteSession;
 
@@ -27,20 +26,12 @@ namespace pjsip4net.Calls
 
         private string _destinationUri;
 
-        public Account Account
+        public IAccount Account
         {
             get
             {
                 GuardDisposed();
                 return _account;
-            }
-            internal set
-            {
-                Helper.GuardNotNull(value);
-                _account = value;
-                if (IsIncoming)
-                    if (_account != null) 
-                        _accountLock = _account.Lock();
             }
         }
 
@@ -272,7 +263,7 @@ namespace pjsip4net.Calls
             if (!IsIncoming)
                 Helper.GuardIsTrue(new SipUriParser(DestinationUri).IsValid);
 
-            _accountLock = Account.Lock(); //if everything is ok
+            _accountLock = ((Account)Account).Lock(); //if everything is ok
         }
 
         public void Hold()
@@ -340,6 +331,14 @@ namespace pjsip4net.Calls
             GuardDisposed();
             if (IsActive)
                 _callManager.CallApiProvider.DialDtmf(Id, digits);
+        }
+
+        internal void SetAccount(IAccountInternal account)
+        {
+            Helper.GuardNotNull(account);
+            _account = account;
+            if (IsIncoming)
+                _accountLock = _account.Lock();
         }
 
         internal virtual CallInfo GetCallInfo()

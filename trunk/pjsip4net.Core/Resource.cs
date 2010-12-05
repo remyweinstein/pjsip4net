@@ -1,8 +1,9 @@
 ﻿using System;
+using pjsip4net.Core.Interfaces;
 
 namespace pjsip4net.Core
 {
-    public class Resource
+    public class Resource : IResource
     {
         protected bool _isDisposed;
 
@@ -14,7 +15,7 @@ namespace pjsip4net.Core
 
         #region Implementation of IDisposable
 
-        internal void InternalDispose()
+        void IResource.InternalDispose()
         {
             Dispose(true);
         }

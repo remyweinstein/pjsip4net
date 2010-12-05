@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using pjsip4net.Core.Interfaces;
 using pjsip4net.Core.Utils;
 using pjsip4net.Interfaces;
 using pjsip4net.Transport;
@@ -80,12 +79,12 @@ namespace pjsip4net.Accounts.Dsl
             return this;
         }
 
-        public Account Register()
+        public IAccount Register()
         {
             if (string.IsNullOrEmpty(_registrarDomain))
                 throw new ArgumentNullException("domain");
 
-            Account account = CreateAccount();
+            IAccountInternal account = CreateAccount();
             using (account.InitializationScope())
             {
                 account.Credential = new NetworkCredential(_login, _password, "*");
@@ -112,7 +111,7 @@ namespace pjsip4net.Accounts.Dsl
                     sb.AppendTransportSuffix(TransportType.Tls);
 
                 account.RegistrarUri = sb.ToString();
-                account.Transport = _transport;
+                account.SetTransport(_transport);
                 account.PublishPresence = _publish;
                 if (_regTimeout != default(int))
                     account.RegistrationTimeout = _regTimeout;
@@ -122,14 +121,14 @@ namespace pjsip4net.Accounts.Dsl
             return account;
         }
 
-        protected virtual Account CreateAccount()
+        internal virtual IAccountInternal CreateAccount()
         {
             var account = _objectFactory.Create<Account>();
             account.IsLocal = false;
             return account;
         }
 
-        protected virtual void InternalRegister(Account account)
+        internal virtual void InternalRegister(IAccountInternal account)
         {
             _accountManager.RegisterAccount(account, _default);
         }

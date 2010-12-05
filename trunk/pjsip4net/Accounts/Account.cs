@@ -10,7 +10,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Accounts
 {
-    public class Account : Initializable, IIdentifiable<Account>
+    internal class Account : Initializable, IAccountInternal, IIdentifiable<Account>
     {
         private bool _isLocal;
         private readonly object _lock = new object();
@@ -387,7 +387,12 @@ namespace pjsip4net.Accounts
             }
         }
 
-        internal bool IsInUse
+        public AccountConfig Config
+        {
+            get { return _config; }
+        }
+
+        public bool IsInUse
         {
             get
             {
@@ -402,7 +407,7 @@ namespace pjsip4net.Accounts
 
         #region Methods
 
-        internal Account(IAccountManagerInternal accountManager)
+        public Account(IAccountManagerInternal accountManager)
         {
             Helper.GuardNotNull(accountManager);
             _manager = accountManager;
@@ -463,6 +468,11 @@ namespace pjsip4net.Accounts
             }
         }
 
+        public void Unregister()
+        {
+            _manager.UnregisterAccount(this);
+        }
+
         //public void SetRemoteRegisteration()
         //{
         //    GuardNotInitialized();
@@ -481,9 +491,19 @@ namespace pjsip4net.Accounts
         //        Helper.GuardError(PJSUA_DLL.Accounts.pjsua_acc_set_registration(Id, false));
         //}
 
-        internal void HandleStateChanged()
+        public void HandleStateChanged()
         {
             _session.HandleStateChanged();
+        }
+
+        public void SetId(int id)
+        {
+            Id = id;
+        }
+
+        public void SetTransport(IVoIPTransport transport)
+        {
+            Transport = transport;
         }
 
         protected void OnRegistrationStateChanged()
@@ -513,7 +533,7 @@ namespace pjsip4net.Accounts
         //    Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi().pjsua_acc_modify(Id, _config));
         //}
 
-        internal AccountStateChangedEventArgs GetEventArgs()
+        public AccountStateChangedEventArgs GetEventArgs()
         {
             var info = GetAccountInfo();
             return new AccountStateChangedEventArgs
@@ -537,7 +557,7 @@ namespace pjsip4net.Accounts
                 _lockCount--;
         }
 
-        internal virtual IDisposable Lock()
+        public virtual IDisposable Lock()
         {
             return new AccountLock(this);
         }

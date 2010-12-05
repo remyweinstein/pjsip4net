@@ -31,17 +31,18 @@ namespace pjsip.Interop.Services
             //                      });
             Mapper.CreateMap<UaConfig, pjsua_config>()//.WithProfile("pjsip4net2pjsua")
                 .ForMember(x => x.cb, cx => cx.Ignore())
-                .ForMember(x => x.cred_info,
-                           cx => cx.MapFrom(x => x.Credentials.Select(c => c.ToPjsipCredentialsInfo()).ToArray()))
+                .ForMember(x => x.cred_info, cx => cx.MapFrom(x => x.Credentials
+                               .Select(c => c.ToPjsipCredentialsInfo()).GrowWithDefaultTo(8).ToArray()))
                 .ForMember(x => x.cred_count, cx => cx.MapFrom(x => (uint) x.Credentials.Count))
                 .ForMember(x => x.force_lr, cx => cx.MapFrom(x => Convert.ToInt32(x.ForceLooseRoute)))
                 .ForMember(x => x.hangup_forked_call, cx => cx.MapFrom(x => Convert.ToInt32(x.HangupForkedCall)))
                 .ForMember(x => x.max_calls, cx => cx.MapFrom(x => x.MaxCalls))
-                .ForMember(x => x.nameserver, cx => cx.MapFrom(x => x.DnsServers.Select(s => new pj_str_t(s)).ToArray()))
+                .ForMember(x => x.nameserver, cx => cx.MapFrom(x => x.DnsServers
+                    .Select(s => new pj_str_t(s)).GrowWithDefaultTo(4).ToArray()))
                 .ForMember(x => x.nameserver_count, cx => cx.MapFrom(x => (uint) x.DnsServers.Count))
                 .ForMember(x => x.nat_type_in_sdp, cx => cx.MapFrom(x => Convert.ToInt32(x.NatInSdp)))
-                .ForMember(x => x.outbound_proxy,
-                           cx => cx.MapFrom(x => x.OutboundProxies.Select(s => new pj_str_t(s)).ToArray()))
+                .ForMember(x => x.outbound_proxy, cx => cx.MapFrom(x => x.OutboundProxies
+                    .Select(s => new pj_str_t(s)).GrowWithDefaultTo(4).ToArray()))
                 .ForMember(x => x.outbound_proxy_cnt, cx => cx.MapFrom(x => (uint) x.OutboundProxies.Count))
                 .ForMember(x => x.require_100rel, cx => cx.MapFrom(x => Convert.ToInt32(x.Require100Rel)))
                 .ForMember(x => x.require_timer, cx => cx.Ignore())
@@ -49,7 +50,8 @@ namespace pjsip.Interop.Services
                 .ForMember(x => x.stun_domain, cx => cx.MapFrom(x => new pj_str_t(x.StunDomain)))
                 .ForMember(x => x.stun_host, cx => cx.MapFrom(x => new pj_str_t(x.StunHost)))
                 .ForMember(x => x.stun_ignore_failure, cx => cx.MapFrom(x => Convert.ToInt32(x.StunIgnoreFailure)))
-                .ForMember(x => x.stun_srv, cx => cx.MapFrom(x => x.StunServers.Select(s => new pj_str_t(s)).ToArray()))
+                .ForMember(x => x.stun_srv, cx => cx.MapFrom(x => x.StunServers
+                    .Select(s => new pj_str_t(s)).GrowWithDefaultTo(8).ToArray()))
                 .ForMember(x => x.stun_srv_cnt, cx => cx.MapFrom(x => (uint) x.StunServers.Count))
                 .ForMember(x => x.thread_cnt, cx => cx.MapFrom(x => x.ThreadCount))
                 .ForMember(x => x.timer_setting, cx => cx.Ignore())
@@ -57,20 +59,24 @@ namespace pjsip.Interop.Services
                 .ForMember(x => x.user_agent, cx => cx.MapFrom(x => new pj_str_t(x.UserAgent)));
             Mapper.CreateMap<pjsua_config, UaConfig>()
                 .ForMember(x => x.Credentials,
-                           cx => cx.MapFrom(x => x.cred_info.Select(c => c.ToNetworkCredential()).ToList()))
+                           cx => cx.MapFrom(x => x.cred_info.Where(c => !string.IsNullOrEmpty(c.username))
+                               .Select(c => c.ToNetworkCredential()).ToList()))
                 .ForMember(x => x.ForceLooseRoute, cx => cx.MapFrom(x => x.force_lr))
                 .ForMember(x => x.HangupForkedCall, cx => cx.MapFrom(x => Convert.ToBoolean(x.hangup_forked_call)))
                 .ForMember(x => x.MaxCalls, cx => cx.MapFrom(x => x.max_calls))
-                .ForMember(x => x.DnsServers, cx => cx.MapFrom(x => x.nameserver.Select(s => (string) s).ToList()))
+                .ForMember(x => x.DnsServers, cx => cx.MapFrom(x => x.nameserver.Select(s => (string) s)
+                    .Where(s => !string.IsNullOrEmpty(s)).ToList()))
                 .ForMember(x => x.NatInSdp, cx => cx.MapFrom(x => Convert.ToBoolean(x.nat_type_in_sdp)))
                 .ForMember(x => x.OutboundProxies,
-                           cx => cx.MapFrom(x => x.outbound_proxy.Select(s => (string) s).ToList()))
+                           cx => cx.MapFrom(x => x.outbound_proxy.Select(s => (string) s)
+                               .Where(s => !string.IsNullOrEmpty(s)).ToList()))
                 .ForMember(x => x.Require100Rel, cx => cx.MapFrom(x => Convert.ToBoolean(x.require_100rel)))
                 .ForMember(x => x.SecureSignalling, cx => cx.MapFrom(x => x.srtp_secure_signaling))
                 .ForMember(x => x.StunDomain, cx => cx.MapFrom(x => (string) x.stun_domain))
                 .ForMember(x => x.StunHost, cx => cx.MapFrom(x => (string) x.stun_host))
                 .ForMember(x => x.StunIgnoreFailure, cx => cx.MapFrom(x => Convert.ToBoolean(x.stun_ignore_failure)))
-                .ForMember(x => x.StunServers, cx => cx.MapFrom(x => x.stun_srv.Select(s => (string) s).ToList()))
+                .ForMember(x => x.StunServers, cx => cx.MapFrom(x => x.stun_srv.Select(s => (string) s)
+                    .Where(s => !string.IsNullOrEmpty(s)).ToList()))
                 .ForMember(x => x.ThreadCount, cx => cx.MapFrom(x => x.thread_cnt))
                 .ForMember(x => x.UseSrtp, cx => cx.MapFrom(x => (SrtpRequirement) x.use_srtp))
                 .ForMember(x => x.UserAgent, cx => cx.MapFrom(x => (string) x.user_agent))
@@ -163,7 +169,7 @@ namespace pjsip.Interop.Services
             Mapper.CreateMap<pjsua_transport_config, TransportConfig>()
                 .ForMember(x => x.BoundAddress, cx => cx.MapFrom(x => (string)x.bound_addr))
                 .ForMember(x => x.Port, cx => cx.MapFrom(x => x.port))
-                .ForMember(x => x.PublicAddress, cx => cx.MapFrom(x => new pj_str_t(x.public_addr)))
+                .ForMember(x => x.PublicAddress, cx => cx.MapFrom(x => (string)x.public_addr))
                 .ForMember(x => x.TlsSetting, cx => cx.MapFrom(x => new TlsConfig()
                                                                         {
                                                                             CAListFile = x.tls_setting.ca_list_file,

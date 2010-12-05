@@ -5,7 +5,7 @@ using pjsip4net.Core.Utils;
 
 namespace pjsip4net.Core
 {
-    public class Initializable : Resource, ISupportInitialize, IInitializable
+    public class Initializable : Resource, IInitializable
     {
         protected bool _isInitialized;
         protected bool _isInitializing;

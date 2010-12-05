@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3DB8BE38-55D9-4B8F-961F-6D89CEA0FE65}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -68,8 +68,8 @@
     <Compile Include="AccountBuilderTests.cs" />
     <Compile Include="AccountTests.cs" />
     <Compile Include="CallBuilderTests.cs" />
-    <Compile Include="Configuration\ConfigureVersionForTest.cs" />
     <Compile Include="given_a_valueWrapper.cs" />
+    <Compile Include="given_bcl_extensions.cs" />
     <Compile Include="given_equals_template_for_IIdentifiable.cs" />
     <Compile Include="given_a_castle_container.cs" />
     <Compile Include="given_a_component_configurator.cs" />

@@ -1,6 +1,3 @@
-using pjsip4net.Accounts;
-using pjsip4net.Core.Interfaces;
-
 namespace pjsip4net.Interfaces
 {
     public interface IAccountBuilder
@@ -13,6 +10,6 @@ namespace pjsip4net.Interfaces
         IAccountBuilder Default();
         IAccountBuilder PublishingPresence();
         IAccountBuilder WithRegistrationTimeout(uint registrationTimeout);
-        Account Register();
+        IAccount Register();
     }
 }

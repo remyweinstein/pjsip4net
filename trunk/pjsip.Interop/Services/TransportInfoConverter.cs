@@ -16,11 +16,11 @@ namespace pjsip.Interop.Services
             rx.Flag = x.flag;
             rx.Id = x.id;
             rx.Info = x.info;
-            rx.Host = x.local_name.host;
-            rx.Port = x.local_name.port;
+            //rx.Host = x.local_name.host;
+            //rx.Port = x.local_name.port;
             rx.Type = x.type.ToTransportType();
             rx.TypeName = x.type_name;
-            rx.UsageCount = x.usage_count;
+            //rx.UsageCount = x.usage_count;
             return rx;
         }
 
