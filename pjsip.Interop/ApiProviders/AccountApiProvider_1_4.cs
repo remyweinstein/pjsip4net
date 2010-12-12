@@ -47,8 +47,8 @@ namespace pjsip.Interop.ApiProviders
         public int AddAccountAndGetId(AccountConfig accCfg, bool isDefault)
         {
             int id = NativeConstants.PJSUA_INVALID_ID;
-            Helper.GuardError(PJSUA_DLL.Accounts.pjsua_acc_add(_mapper.Map(accCfg, new pjsua_acc_config()),
-                                                               Convert.ToInt32(isDefault), ref id));
+            var cfg = _mapper.Map(accCfg, new pjsua_acc_config());
+            Helper.GuardError(PJSUA_DLL.Accounts.pjsua_acc_add(cfg, Convert.ToInt32(isDefault), ref id));
             return id;
         }
 

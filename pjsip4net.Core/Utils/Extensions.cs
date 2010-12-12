@@ -34,6 +34,11 @@ namespace pjsip4net.Core.Utils
         {
             return times;
         }
+
+        public static T As<T>(this object @object) where T : class
+        {
+            return @object as T;
+        }
     }
 
     public class AllDifferentComparer<T> : IEqualityComparer<T>

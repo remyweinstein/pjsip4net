@@ -1,11 +1,12 @@
 ﻿using System;
 using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
     public class DtmfEventArgs : EventArgs
     {
-        public DtmfEventArgs(Call call, int digit)
+        public DtmfEventArgs(ICall call, int digit)
         {
             Helper.GuardNotNull(call);
             Helper.GuardPositiveInt(call.Id);

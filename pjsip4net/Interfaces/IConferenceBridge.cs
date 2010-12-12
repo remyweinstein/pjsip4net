@@ -1,5 +1,3 @@
-using pjsip4net.Calls;
-
 namespace pjsip4net.Interfaces
 {
     public interface IConferenceBridge
@@ -14,7 +12,7 @@ namespace pjsip4net.Interfaces
         void Disconnect(int slotX, int slotY);
         void ConnectToSoundDevice(int slotId);
         void DisconnectFromSoundDevice(int slotId);
-        void ConnectCall(Call call);
-        void DisconnectCall(Call call);
+        void ConnectCall(ICall call);
+        void DisconnectCall(ICall call);
     }
 }

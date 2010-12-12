@@ -20,4 +20,7 @@ namespace pjsip4net.Interfaces
         void SetConfig(TransportConfig config);
         void SetId(int id);
     }
+
+    internal interface IVoIPTransportInternal : IVoIPTransport, IResource
+    { }
 }

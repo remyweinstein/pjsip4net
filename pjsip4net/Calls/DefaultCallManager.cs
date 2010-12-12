@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using pjsip4net.Accounts;
 using pjsip4net.Core;
 using pjsip4net.Core.Data;
 using pjsip4net.Core.Data.Events;
@@ -45,7 +44,7 @@ namespace pjsip4net.Calls
         #region Private data
 
         //private SynchronizationContext _syncContext;
-        private readonly SortedDictionary<int, Call> _activeCalls = new SortedDictionary<int, Call>();
+        private readonly SortedDictionary<int, ICallInternal> _activeCalls = new SortedDictionary<int, ICallInternal>();
         private readonly ManualResetEvent _barrier;
         private MruCache<ValueWrapper<int>, CallStateChangedEventArgs> _eaCache;
         //private CallStateChangedEventArgs _ea = new CallStateChangedEventArgs();
@@ -62,18 +61,18 @@ namespace pjsip4net.Calls
         #region Properties
 
         private uint _maxCalls;
-        public event EventHandler<EventArgs<Call>> IncomingCall = delegate { };
+        public event EventHandler<EventArgs<ICall>> IncomingCall = delegate { };
         public event EventHandler<CallStateChangedEventArgs> CallStateChanged = delegate { };
         public event EventHandler<DtmfEventArgs> IncomingDtmfDigit = delegate { };
         public event EventHandler<RingEventArgs> Ring = delegate { };
         public event EventHandler<CallTransferEventArgs> CallTransfer = delegate { };
 
-        public ReadOnlyCollection<Call> Calls
+        public ReadOnlyCollection<ICall> Calls
         {
             get
             {
                 lock (_lock)
-                    return new ReadOnlyCollection<Call>(new List<Call>(_activeCalls.Values));
+                    return new ReadOnlyCollection<ICall>(new List<ICall>(_activeCalls.Values.Cast<ICall>()));
             }
         }
 
@@ -106,12 +105,12 @@ namespace pjsip4net.Calls
 
         #region Methods
 
-        public Call MakeCall(string destinationUri)
+        public ICall MakeCall(string destinationUri)
         {
             return MakeCall(_accMgr.DefaultAccount, destinationUri);
         }
 
-        public Call MakeCall(IAccount account, string destinationUri)
+        public ICall MakeCall(IAccount account, string destinationUri)
         {
             lock (_lock)
             {
@@ -152,7 +151,7 @@ namespace pjsip4net.Calls
                     return; //close silently
         }
 
-        public Call GetCallById(int id)
+        public ICall GetCallById(int id)
         {
             lock (_lock)
                 if (_activeCalls.ContainsKey(id))
@@ -160,7 +159,7 @@ namespace pjsip4net.Calls
             return null;
         }
 
-        public void TerminateCall(Call call)
+        public void TerminateCall(ICallInternal call)
         {
             Helper.GuardNotNull(call);
             lock (_lock)
@@ -189,7 +188,7 @@ namespace pjsip4net.Calls
             _eventsProvider.Subscribe<CallTransferStatusChanged>(e => OnCallTransferStatus(e));
         }
 
-        public void RaiseCallStateChanged(Call call)
+        public void RaiseCallStateChanged(ICallInternal call)
         {
             CallStateChangedEventArgs ea;
             if (_eaCache.TryGetValue(new ValueWrapper<int>(call.Id), out ea))
@@ -210,11 +209,11 @@ namespace pjsip4net.Calls
             }
         }
 
-        public void RaiseRingEvent(Call call, bool ringOn)
+        public void RaiseRingEvent(ICallInternal call, bool ringOn)
         {
             //try
             //{
-            call._inviteSession.IsRinging = true;
+            call.InviteSession.IsRinging = true;
             //    if (_syncContext != null)
             //        _syncContext.Post(s => Ring(this, new RingEventArgs(ringOn, call)), null);
             //    else
@@ -254,8 +253,8 @@ namespace pjsip4net.Calls
                 Monitor.Enter(_lock);
                 if (_activeCalls.Count < MaxCalls)
                 {
-                    var call = _objectFactory.Create<Call>();
-                    call.Id = e.CallId;
+                    var call = _objectFactory.Create<ICallInternal>();
+                    call.SetId(e.CallId);
                     call.SetAccount(account);
                     AddCallAndUpdateEaCache(account.AccountId, call);
                     Monitor.Exit(_lock);
@@ -268,7 +267,7 @@ namespace pjsip4net.Calls
                     }
 
                     RaiseRingEvent(call, true);
-                    var ea = new EventArgs<Call>(call);
+                    var ea = new EventArgs<ICall>(call);
                     //try
                     //{
                     //    if (_syncContext != null)
@@ -341,7 +340,7 @@ namespace pjsip4net.Calls
             e.Continue = true;
         }
 
-        private void AddCallAndUpdateEaCache(string destinationUri, Call call)
+        private void AddCallAndUpdateEaCache(string destinationUri, ICallInternal call)
         {
             _activeCalls.Add(call.Id, call);
             CallStateChangedEventArgs ea;

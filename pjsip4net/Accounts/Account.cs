@@ -96,14 +96,14 @@ namespace pjsip4net.Accounts
             }
         }
 
-        public bool IsLocal
+        bool IAccountInternal.IsLocal
         {
             get
             {
                 GuardDisposed();
                 return _isLocal;
             }
-            internal set
+            set
             {
                 _isLocal = value;
             }
@@ -173,7 +173,7 @@ namespace pjsip4net.Accounts
         public virtual IVoIPTransport Transport
         {
             get { return _transport; }
-            internal set
+            set
             {
                 GuardDisposed();
                 //GuardNotInitializing();
@@ -461,7 +461,7 @@ namespace pjsip4net.Accounts
         {
             GuardDisposed();
             GuardNotInitialized();
-            if (!_session.IsRegistered && Id != -1 && !IsLocal)
+            if (!_session.IsRegistered && Id != -1 && !((IAccountInternal) this).IsLocal)
             {
                 _manager.Provider.SetAccountRegistration(Id, true);
                 _session.HandleStateChanged();
@@ -511,7 +511,7 @@ namespace pjsip4net.Accounts
             _manager.RaiseStateChanged(this);
         }
 
-        internal AccountInfo GetAccountInfo()
+        public AccountInfo GetAccountInfo()
         {
             lock (_lock)
             {
@@ -535,7 +535,7 @@ namespace pjsip4net.Accounts
 
         public AccountStateChangedEventArgs GetEventArgs()
         {
-            var info = GetAccountInfo();
+            var info = GetAccountInfo() ?? new AccountInfo();
             return new AccountStateChangedEventArgs
                        {
                            Id = Id,
