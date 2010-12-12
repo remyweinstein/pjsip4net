@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using pjsip4net.Core;
 using pjsip4net.Core.Data;
@@ -12,8 +11,8 @@ namespace pjsip4net
     {
         #region Implementation of ILocalRegistry
 
-        public IVoIPTransport SipTransport { get; set; }
-        public IVoIPTransport RtpTransport { get; set; }
+        public IVoIPTransportInternal SipTransport { get; set; }
+        public IVoIPTransportInternal RtpTransport { get; set; }
 
         public UaConfig Config { get; set; }
         public MediaConfig MediaConfig { get; set; }

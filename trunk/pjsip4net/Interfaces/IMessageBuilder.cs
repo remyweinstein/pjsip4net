@@ -9,8 +9,8 @@ namespace pjsip4net.Interfaces
         IMessageBuilder At(string domain);
         IMessageBuilder Through(string port);
         IMessageBuilder WithBody(string body);
-        IMessageBuilder From(Account account);
-        IMessageBuilder InDialogOf(Call call);
+        IMessageBuilder From(IAccount account);
+        IMessageBuilder InDialogOf(ICall call);
         void Send();
         void SendTyping();
         void SendFinishedTyping();

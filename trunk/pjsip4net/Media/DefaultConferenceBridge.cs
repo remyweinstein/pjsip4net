@@ -4,7 +4,6 @@ using System.Linq;
 using pjsip4net.Calls;
 using pjsip4net.Core.Interfaces.ApiProviders;
 using pjsip4net.Core.Utils;
-using pjsip4net.IM;
 using pjsip4net.Interfaces;
 
 namespace pjsip4net.Media
@@ -13,7 +12,7 @@ namespace pjsip4net.Media
     {
         #region Private Data
 
-        private readonly List<Call> _calls = new List<Call>();
+        private readonly List<ICall> _calls = new List<ICall>();
         private readonly object _lock = new object();
         private readonly IMediaApiProvider _mediaApi;
 
@@ -91,7 +90,7 @@ namespace pjsip4net.Media
             Disconnect(slotId, 0);
         }
 
-        public void ConnectCall(Call call)
+        public void ConnectCall(ICall call)
         {
             Helper.GuardNotNull(call);
             Helper.GuardPositiveInt(call.Id);
@@ -99,7 +98,7 @@ namespace pjsip4net.Media
 
             //lock (_lock)
             {
-                foreach (Call c in _calls)
+                foreach (ICall c in _calls)
                     Interconnect(call.ConferenceSlotId, c.ConferenceSlotId);
                 _calls.Add(call);
 
@@ -107,7 +106,7 @@ namespace pjsip4net.Media
             }
         }
 
-        public void DisconnectCall(Call call)
+        public void DisconnectCall(ICall call)
         {
             Helper.GuardNotNull(call);
             Helper.GuardPositiveInt(call.Id);

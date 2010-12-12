@@ -1,17 +1,15 @@
-﻿using pjsip4net.Accounts;
-using pjsip4net.Calls;
-using pjsip4net.Core;
+﻿using pjsip4net.Core;
 using pjsip4net.Core.Utils;
 using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM.Dsl
 {
-    public class DefaultMessageBuilder : IMessageBuilder
+    internal class DefaultMessageBuilder : IMessageBuilder
     {
         private readonly SipUriBuilder _builder = new SipUriBuilder();
         private string _body;
-        private Account _from;
-        private Call _dialog;
+        private IAccount _from;
+        private ICall _dialog;
         private IImManager _userAgent;
 
         public DefaultMessageBuilder(IImManager userAgent)
@@ -44,7 +42,7 @@ namespace pjsip4net.IM.Dsl
             return this;
         }
 
-        public IMessageBuilder From(Account account)
+        public IMessageBuilder From(IAccount account)
         {
             Helper.GuardNotNull(account);
             Helper.GuardNotNull(account.Transport);
@@ -54,7 +52,7 @@ namespace pjsip4net.IM.Dsl
             return this;
         }
 
-        public IMessageBuilder InDialogOf(Call call)
+        public IMessageBuilder InDialogOf(ICall call)
         {
             Helper.GuardNotNull(call);
             _dialog = call;

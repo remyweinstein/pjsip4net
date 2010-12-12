@@ -7,8 +7,8 @@ namespace pjsip4net.Interfaces
 {
     internal interface ILocalRegistry
     {
-        IVoIPTransport SipTransport { get; set; }
-        IVoIPTransport RtpTransport { get; set; }
+        IVoIPTransportInternal SipTransport { get; set; }
+        IVoIPTransportInternal RtpTransport { get; set; }
         UaConfig Config { get; set; }
         MediaConfig MediaConfig { get; set; }
         LoggingConfig LoggingConfig { get; set; }

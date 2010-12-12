@@ -1,11 +1,12 @@
 using System;
 using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
     public class RingEventArgs : EventArgs
     {
-        public RingEventArgs(bool ringOn, Call call)
+        public RingEventArgs(bool ringOn, ICall call)
         {
             Helper.GuardNotNull(call);
             Helper.GuardPositiveInt(call.Id);

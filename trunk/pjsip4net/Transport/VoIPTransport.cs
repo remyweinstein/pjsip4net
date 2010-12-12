@@ -8,7 +8,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Transport
 {
-    internal abstract class VoIPTransport : Initializable, IVoIPTransport
+    internal abstract class VoIPTransport : Initializable, IVoIPTransportInternal
     {
         #region Protected Data
 

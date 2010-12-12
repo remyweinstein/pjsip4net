@@ -6,11 +6,9 @@ using pjsip4net.Core;
 using pjsip4net.Core.Configuration;
 using pjsip4net.Core.Container;
 using pjsip4net.Core.Data;
-using pjsip4net.Core.Interfaces;
 using pjsip4net.Core.Interfaces.ApiProviders;
 using pjsip4net.Core.Utils;
 using pjsip4net.Interfaces;
-using pjsip4net.Media;
 
 namespace pjsip4net.Configuration
 {
@@ -101,13 +99,16 @@ namespace pjsip4net.Configuration
                 throw new InvalidOperationException("You should call Build first to build up user agent infrastructure.");
 
             var transportFactory = cfg.Container.Get<IVoIPTransportFactory>();
-            localRegistry.SipTransport = transportFactory.CreateTransport(localRegistry.TransportConfig.Part1,
-                                                                          localRegistry.TransportConfig.Part2);
+            localRegistry.SipTransport =
+                transportFactory.CreateTransport(localRegistry.TransportConfig.Part1,
+                                                 localRegistry.TransportConfig.Part2)
+                    .As<IVoIPTransportInternal>();
             var tptApiProvider = cfg.Container.Get<ITransportApiProvider>();
             localRegistry.SipTransport.SetId(
                 tptApiProvider.CreateTransportAndGetId(localRegistry.SipTransport.TransportType,
                                                        localRegistry.SipTransport.Config));
-            localRegistry.RtpTransport = transportFactory.CreateTransport(TransportType.Udp);
+            localRegistry.RtpTransport =
+                transportFactory.CreateTransport(TransportType.Udp).As<IVoIPTransportInternal>();
             using (localRegistry.RtpTransport.InitializationScope())
                 localRegistry.RtpTransport.Config.Port = 4000;
 

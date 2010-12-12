@@ -14,12 +14,10 @@ namespace pjsip4net.Interfaces
         NetworkCredential Credential { get; set; }
         SrtpRequirement UseSrtp { get; set; }
         int SecureSignaling { get; set; }
-        bool IsLocal { get; }
         int Priority { get; set; }
         string RegistrarUri { get; set; }
         string RegistrarDomain { get; }
         string RegistrarPort { get; }
-        IVoIPTransport Transport { get; }
         bool PublishPresence { get; set; }
         ICollection<string> Proxies { get; }
         uint RegistrationTimeout { get; set; }
@@ -33,6 +31,7 @@ namespace pjsip4net.Interfaces
         int? Expires { get; }
         SipStatusCode? StatusCode { get; }
         string StatusText { get; }
+        IVoIPTransport Transport { get; set; }
 
         void SetConfig(AccountConfig config);
         void PublishOnline(string note);
@@ -44,11 +43,13 @@ namespace pjsip4net.Interfaces
     {
         AccountConfig Config { get; }
         bool IsInUse { get; }
+        bool IsLocal { get; set; }
 
         IDisposable Lock();
         void HandleStateChanged();
         void SetId(int id);
         void SetTransport(IVoIPTransport transport);
         AccountStateChangedEventArgs GetEventArgs();
+        AccountInfo GetAccountInfo();
     }
 }

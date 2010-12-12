@@ -1,7 +1,6 @@
 using System;
 using Moq;
 using NUnit.Framework;
-using pjsip4net.Configuration;
 using pjsip4net.Core.Interfaces;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;

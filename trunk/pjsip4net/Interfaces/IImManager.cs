@@ -1,9 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
-using pjsip4net.Accounts;
-using pjsip4net.Buddy;
-using pjsip4net.Calls;
 using pjsip4net.Core.Interfaces;
+using pjsip4net.IM;
 
 namespace pjsip4net.Interfaces
 {
@@ -17,19 +15,18 @@ namespace pjsip4net.Interfaces
         //UaConfig Config { get; }
         //LoggingConfig LoggingConfig { get; }
         //MediaConfig MediaConfig { get; }
-        ReadOnlyCollection<Buddy.Buddy> Buddies { get; }
-        event EventHandler<LogEventArgs> Log;
+        ReadOnlyCollection<IBuddy> Buddies { get; }
         event EventHandler<BuddyStateChangedEventArgs> BuddyStateChanged;
         event EventHandler<PagerEventArgs> IncomingMessage;
         event EventHandler<TypingEventArgs> TypingAlert;
         event EventHandler<NatEventArgs> NatDetected;
 
-        void RegisterBuddy(Buddy.Buddy buddy);
-        void UnregisterBuddy(Buddy.Buddy buddy);
-        Buddy.Buddy GetBuddyById(int id);
-        void SendMessage(Account account, string body, string to);
-        void SendMessageInDialog(Call dialog, string body);
-        void SendTyping(Account account, string to, bool isTyping);
-        void SendTypingInDialog(Call dialog, bool isTyping);
+        void RegisterBuddy(IBuddy buddy);
+        void UnregisterBuddy(IBuddy buddy);
+        IBuddy GetBuddyById(int id);
+        void SendMessage(IAccount account, string body, string to);
+        void SendMessageInDialog(ICall dialog, string body);
+        void SendTyping(IAccount account, string to, bool isTyping);
+        void SendTypingInDialog(ICall dialog, bool isTyping);
     }
 }

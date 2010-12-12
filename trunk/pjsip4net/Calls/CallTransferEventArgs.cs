@@ -1,5 +1,6 @@
 using System;
 using pjsip4net.Core.Data;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
@@ -7,6 +8,6 @@ namespace pjsip4net.Calls
     {
         public string Destination { get; internal set; }
         public SipStatusCode StatusCode { get; set; }
-        public Call Call { get; internal set; }
+        public ICall Call { get; internal set; }
     }
 }

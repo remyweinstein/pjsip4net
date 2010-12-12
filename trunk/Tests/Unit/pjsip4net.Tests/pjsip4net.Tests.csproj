@@ -67,7 +67,9 @@
   <ItemGroup>
     <Compile Include="AccountBuilderTests.cs" />
     <Compile Include="AccountTests.cs" />
+    <Compile Include="_base.cs" />
     <Compile Include="CallBuilderTests.cs" />
+    <Compile Include="given_a_sip_ua.cs" />
     <Compile Include="given_a_valueWrapper.cs" />
     <Compile Include="given_bcl_extensions.cs" />
     <Compile Include="given_equals_template_for_IIdentifiable.cs" />

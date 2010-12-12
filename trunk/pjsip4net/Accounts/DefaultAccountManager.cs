@@ -113,7 +113,7 @@ namespace pjsip4net.Accounts
 
             lock (_lock)
             {
-                if (account.Transport != null) 
+                if (account.Transport == null) 
                     account.SetTransport(_localRegistry.SipTransport);
                 int id = -1;
                 if (account.IsLocal)

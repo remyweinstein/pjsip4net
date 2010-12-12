@@ -9,7 +9,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
-    public class Call : Initializable, ICallInternal, IIdentifiable<Call>
+    internal class Call : Initializable, ICallInternal, IIdentifiable<Call>
     {
         #region Private data
 
@@ -214,6 +214,11 @@ namespace pjsip4net.Calls
         }
 
         public int Id { get; internal set; }
+        
+        InviteSession ICallInternal.InviteSession
+        {
+            get { return _inviteSession; }
+        }
 
         #endregion
 
@@ -233,16 +238,6 @@ namespace pjsip4net.Calls
 
             CallInfo info = GetCallInfo();
             IsIncoming = info.Role == SipRole.RoleUas;
-        }
-
-        public bool Equals(IIdentifiable<Call> other)
-        {
-            return EqualsTemplate.Equals(this, other);
-        }
-
-        bool IIdentifiable<Call>.DataEquals(Call other)
-        {
-            return true;
         }
 
         //public static ICallBuilder New()
@@ -333,7 +328,13 @@ namespace pjsip4net.Calls
                 _callManager.CallApiProvider.DialDtmf(Id, digits);
         }
 
-        internal void SetAccount(IAccountInternal account)
+        public void SetId(int id)
+        {
+            Helper.GuardPositiveInt(id);
+            Id = id;
+        }
+
+        public void SetAccount(IAccountInternal account)
         {
             Helper.GuardNotNull(account);
             _account = account;
@@ -341,7 +342,7 @@ namespace pjsip4net.Calls
                 _accountLock = _account.Lock();
         }
 
-        internal virtual CallInfo GetCallInfo()
+        public virtual CallInfo GetCallInfo()
         {
             GuardDisposed();
             //lock (_lock)
@@ -359,12 +360,12 @@ namespace pjsip4net.Calls
             }
         }
 
-        internal void HandleInviteStateChanged()
+        public void HandleInviteStateChanged()
         {
             _inviteSession.HandleStateChanged();
         }
 
-        internal void HandleMediaStateChanged()
+        public void HandleMediaStateChanged()
         {
             _mediaSession.HandleStateChanged();
         }
@@ -372,6 +373,16 @@ namespace pjsip4net.Calls
         private void OnStateChanged()
         {
             _callManager.RaiseCallStateChanged(this);
+        }
+
+        public bool Equals(IIdentifiable<Call> other)
+        {
+            return EqualsTemplate.Equals(this, other);
+        }
+
+        public bool DataEquals(Call other)
+        {
+            return true;
         }
 
         public override string ToString()

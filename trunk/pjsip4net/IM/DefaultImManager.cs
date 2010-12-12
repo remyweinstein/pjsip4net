@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using pjsip4net.Accounts;
-using pjsip4net.Buddy;
 using pjsip4net.Calls;
 using pjsip4net.Core;
 using pjsip4net.Core.Data.Events;
@@ -25,9 +24,9 @@ namespace pjsip4net.IM
         private readonly IEventsProvider _eventsProvider;
         private ILocalRegistry _localRegistry;
 
-        private readonly SortedDictionary<int, Buddy.Buddy> _buddies = new SortedDictionary<int, Buddy.Buddy>();
+        private readonly SortedDictionary<int, IBuddyInternal> _buddies = new SortedDictionary<int, IBuddyInternal>();
         private readonly object _instLock = new object();
-        private Buddy.Buddy _pendingBuddy;
+        private IBuddyInternal _pendingBuddy;
         //private IVoIPTransport _rtpTransport;
         //private IVoIPTransport _sipTransport; //move to build
 
@@ -50,18 +49,17 @@ namespace pjsip4net.IM
 
         #region Properties
 
-        public ReadOnlyCollection<Buddy.Buddy> Buddies
+        public ReadOnlyCollection<IBuddy> Buddies
         {
             get
             {
                 lock (_instLock)
                 {
-                    return _buddies.Values.ToList().AsReadOnly();
+                    return _buddies.Values.Cast<IBuddy>().ToList().AsReadOnly();
                 }
             }
         }
 
-        public event EventHandler<LogEventArgs> Log = delegate { };
         public event EventHandler<BuddyStateChangedEventArgs> BuddyStateChanged = delegate { };
         public event EventHandler<PagerEventArgs> IncomingMessage = delegate { };
         public event EventHandler<TypingEventArgs> TypingAlert = delegate { };
@@ -108,9 +106,6 @@ namespace pjsip4net.IM
             _eventsProvider.Subscribe<IncomingImRecieved>(e => OnPager(e));
             _eventsProvider.Subscribe<ImStatusChanged>(e => OnPagerStatus(e));
             _eventsProvider.Subscribe<IncomingTypingRecieved>(e => OnTyping(e));
-
-            //logging callback
-            _eventsProvider.Subscribe<LogRequested>(e => OnLog(e));
         }
 
         private void OnNatDetect(NatDetected e)
@@ -134,7 +129,7 @@ namespace pjsip4net.IM
             Debug.WriteLine("SipUa.OnBuddyState unlocked");
         }
 
-        private void RaiseBuddyState(Buddy.Buddy buddy)
+        private void RaiseBuddyState(IBuddyInternal buddy)
         {
             BuddyStateChanged(this, buddy.GetEventArgs());
         }
@@ -161,57 +156,50 @@ namespace pjsip4net.IM
             Debug.WriteLine("Incoming SUBSCRIBE");
         }
 
-        private void OnLog(LogRequested e)
-        {
-            if (_localRegistry.LoggingConfig.TraceAndDebug)
-                Trace.Write(e.Message);
-            if (e.Level <= 2)
-                Helper.LastError = e.Message;
-
-            Log(this, new LogEventArgs(e.Level, e.Message));
-        }
-
-        public void RegisterBuddy(Buddy.Buddy buddy)
+        public void RegisterBuddy(IBuddy buddy)
         {
             Debug.WriteLine("SipUa.RegiterBuddy entering. Thread id = " + Thread.CurrentThread.ManagedThreadId);
-            lock (_instLock)
-            {
-                Debug.WriteLine("SipUa.RegiterBuddy Locked");
-                try
+            var b = buddy.As<IBuddyInternal>();
+            if (b != null)
+                lock (_instLock)
                 {
-                    _pendingBuddy = buddy;
-                    int id = -1;
-                    Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_add");
-                    id = _imApi.AddBuddyAndGetId(buddy._config);
-                    Debug.WriteLine("SipUa.RegiterBuddy added buddy");
-                    buddy.Id = id;
-                    _buddies.Add(buddy.Id, buddy);
-                    Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_subscribe_pres");
-                    _imApi.SubscribeBuddyPresence(id);
-                    Debug.WriteLine("SipUa.RegiterBuddy subscribed presence");
+                    Debug.WriteLine("SipUa.RegiterBuddy Locked");
+                    try
+                    {
+                        _pendingBuddy = b;
+                        int id = -1;
+                        Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_add");
+                        id = _imApi.AddBuddyAndGetId(b.Config);
+                        Debug.WriteLine("SipUa.RegiterBuddy added buddy");
+                        b.SetId(id);
+                        _buddies.Add(b.Id, b);
+                        Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_subscribe_pres");
+                        _imApi.SubscribeBuddyPresence(id);
+                        Debug.WriteLine("SipUa.RegiterBuddy subscribed presence");
+                    }
+                    finally
+                    {
+                        _pendingBuddy = null;
+                    }
                 }
-                finally
-                {
-                    _pendingBuddy = null;
-                }
-            }
             Debug.WriteLine("SipUa.RegiterBuddy unlocked");
         }
 
-        public void UnregisterBuddy(Buddy.Buddy buddy)
+        public void UnregisterBuddy(IBuddy buddy)
         {
+            var b = buddy.As<IBuddyInternal>();
             lock (_instLock)
             {
                 if (buddy.Id != -1)
                 {
                     _imApi.DeleteBuddy(buddy.Id);
                     _buddies.Remove(buddy.Id);
-                    buddy.InternalDispose();
+                    b.InternalDispose();
                 }
             }
         }
 
-        public Buddy.Buddy GetBuddyById(int id)
+        public IBuddy GetBuddyById(int id)
         {
             lock (_instLock)
             {
@@ -223,24 +211,24 @@ namespace pjsip4net.IM
             }
         }
 
-        public void SendTyping(Account account, string to, bool isTyping)
+        public void SendTyping(IAccount account, string to, bool isTyping)
         {
             _imApi.SendIsTyping(account.Id, to);
         }
 
-        public void SendMessage(Account account, string body, string to)
+        public void SendMessage(IAccount account, string body, string to)
         {
             _imApi.SendIm(account.Id, to, "plain/text", body);
         }
 
-        public void SendTypingInDialog(Call dialog, bool isTyping)
+        public void SendTypingInDialog(ICall dialog, bool isTyping)
         {
             Helper.GuardNotNull(dialog);
             Helper.GuardPositiveInt(dialog.Id);
             _callApi.SendTypingInd(dialog.Id, isTyping);
         }
 
-        public void SendMessageInDialog(Call dialog, string body)
+        public void SendMessageInDialog(ICall dialog, string body)
         {
             Helper.GuardNotNull(dialog);
             Helper.GuardPositiveInt(dialog.Id);

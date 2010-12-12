@@ -1,5 +1,6 @@
 using System;
 using pjsip4net.Core.Utils;
+using pjsip4net.Interfaces;
 
 namespace pjsip4net.Accounts
 {
@@ -7,19 +8,19 @@ namespace pjsip4net.Accounts
     {
         private WeakReference _account;
 
-        public RegistrationSession(Account owner)
+        public RegistrationSession(IAccountInternal owner)
         {
             Helper.GuardNotNull(owner);
             _account = new WeakReference(owner);
             _state = new InitializingAccountState(this);
         }
 
-        public Account Account
+        public IAccountInternal Account
         {
             get
             {
                 if (_account.IsAlive)
-                    return (Account) _account.Target;
+                    return (IAccountInternal)_account.Target;
                 throw new ObjectDisposedException("account");
             }
         }

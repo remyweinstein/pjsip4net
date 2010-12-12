@@ -10,17 +10,17 @@ namespace pjsip4net.Interfaces
 {
     public interface ICallManager
     {
-        ReadOnlyCollection<Call> Calls { get; }
+        ReadOnlyCollection<ICall> Calls { get; }
         uint MaxCalls { get; set; }
-        event EventHandler<EventArgs<Call>> IncomingCall;
+        event EventHandler<EventArgs<ICall>> IncomingCall;
         event EventHandler<CallStateChangedEventArgs> CallStateChanged;
         event EventHandler<DtmfEventArgs> IncomingDtmfDigit;
         event EventHandler<RingEventArgs> Ring;
         event EventHandler<CallTransferEventArgs> CallTransfer;
-        Call MakeCall(string destinationUri);
-        Call MakeCall(IAccount account, string destinationUri);
+        ICall MakeCall(string destinationUri);
+        ICall MakeCall(IAccount account, string destinationUri);
         void HangupAll();
-        Call GetCallById(int id);
+        ICall GetCallById(int id);
     }
 
     internal interface ICallManagerInternal : ICallManager, IInitializable
@@ -29,9 +29,9 @@ namespace pjsip4net.Interfaces
         ICallApiProvider CallApiProvider { get; }
         IMediaApiProvider MediaApiProvider { get; }
 
-        void RaiseCallStateChanged(Call call);
-        void RaiseRingEvent(Call call, bool ringOn);
-        void TerminateCall(Call call);
+        void RaiseCallStateChanged(ICallInternal call);
+        void RaiseRingEvent(ICallInternal call, bool ringOn);
+        void TerminateCall(ICallInternal call);
         void OnCallState(CallStateChanged e);
         void OnIncomingCall(IncomingCallRecieved e);
         void OnCallMediaState(CallMediaStateChanged e);
