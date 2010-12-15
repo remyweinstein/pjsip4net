@@ -59,6 +59,8 @@ namespace pjsip4net.Configuration
             var tptConfig = cfg.GetConfiguredTransport(tptApi);
             if (tptConfig != null)
                 localRegistry.TransportConfig = tptConfig;
+            if (localRegistry.TransportConfig == null)
+                localRegistry.TransportConfig = cfg.GetDefaultTransport(tptApi);
 
             var imMgr = cfg.Container.Get<IImManager>();
             Helper.GuardNotNull(imMgr);
@@ -139,13 +141,13 @@ namespace pjsip4net.Configuration
             if (preconfiguredAccounts.Count() > 0)
                 foreach (var accCfg in preconfiguredAccounts)
                 {
-                    var acc = objectFactory.Create<Account>();
+                    var acc = objectFactory.Create<IAccountInternal>();
                     using (acc.InitializationScope())
                     {
                         acc.SetConfig(accCfg);
                         acc.Transport = localRegistry.SipTransport;
                     }
-                    accMgr.RegisterAccount(acc, acc.Default);
+                    accMgr.RegisterAccount(acc, acc.Config.IsDefault);
                 }
 
             return cfg.Container.Get<ISipUserAgent>();

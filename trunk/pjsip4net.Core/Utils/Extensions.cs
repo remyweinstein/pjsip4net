@@ -19,7 +19,7 @@ namespace pjsip4net.Core.Utils
             Helper.GuardInRange(-1, int.MaxValue, count - collection.Count());
 
             var addition = Enumerable.Repeat(new T(), (count - collection.Count()).Times());
-            var result = addition.Union(collection, new AllDifferentComparer<T>());
+            var result = collection.Union(addition, new AllDifferentComparer<T>());
             return result;
         }
 
