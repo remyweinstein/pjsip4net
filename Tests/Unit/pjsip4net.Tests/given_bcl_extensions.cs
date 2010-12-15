@@ -28,5 +28,12 @@ namespace pjsip4net.Tests
             Enumerable.Repeat(new Int32(), 3).GrowWithDefaultTo(2);
             Assert.Fail();
         }
+
+        [Test]
+        public void when_growWithDefaultTo_called__original_collection_should_go_first()
+        {
+            var result = Enumerable.Repeat(2, 1).GrowWithDefaultTo(2);
+            Assert.That(result.First(), Is.EqualTo(2));
+        }
     }
 }

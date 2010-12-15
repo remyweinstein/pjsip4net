@@ -8,4 +8,6 @@ namespace pjsip4net.Console
         public string Port { get; set; }
         public string Transport { get; set; }
     }
+
+    public class NullArguments{}
 }

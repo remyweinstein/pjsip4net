@@ -1,10 +1,6 @@
 using System;
-using Magnum.Pipeline;
-using Magnum.Pipeline.Segments;
 using pjsip.Interop.Interfaces;
-using pjsip.Interop.Services;
 using pjsip4net.Core.Data;
-using pjsip4net.Core.Data.Events;
 using pjsip4net.Core.Interfaces.ApiProviders;
 using pjsip4net.Core.Utils;
 

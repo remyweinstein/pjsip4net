@@ -8,6 +8,8 @@ namespace pjsip4net.Core.Data
         private List<string> _proxy = new List<string>(8);
         private List<NetworkCredential> _cred_info = new List<NetworkCredential>(8);
 
+        public bool IsDefault { get; set; }
+
         public object UserData { get; set; }
         public int Priority { get; set; }
         public string Id { get; set; }

@@ -29,7 +29,7 @@ namespace pjsip4net.Configuration
                     context.RegisterTransport(
                         new Tuple<TransportType, TransportConfig>(
                             (TransportType) Enum.Parse(typeof (TransportType), _section.Transport.TransportType, true),
-                            new TransportConfig()));
+                            new TransportConfig(){Port = (uint) _section.Transport.Port}));
 
                     config.UseSrtp = _section.SecureMedia;
                     config.SecureSignalling = _section.SecureSignaling;
@@ -115,7 +115,8 @@ namespace pjsip4net.Configuration
                                                              {
                                                                  Id = ae.AccountId,
                                                                  RegUri = ae.RegistrarUri,
-                                                                 IsPublishEnabled = ae.PublishPresence
+                                                                 IsPublishEnabled = ae.PublishPresence,
+                                                                 IsDefault = ae.IsDefault
                                                              };
                                             accCfg.Credentials.Add(new NetworkCredential(ae.UserName, ae.Password,
                                                                                          ae.Realm));

@@ -10,7 +10,7 @@ namespace pjsip4net.Console
     {
         public static void Main(string[] args)
         {
-            var ua = Configure.Pjsip4Net().WithVersion_1_4().Build().Start();
+            var ua = Configure.Pjsip4Net().FromConfig().WithVersion_1_4().Build().Start();
             ua.Log += (s, e) => System.Console.WriteLine(e.Data);
             var factory = new CommandFactory(ua);
 
@@ -24,11 +24,11 @@ namespace pjsip4net.Console
                     var command = factory.Create(line);
                     command.Execute();
                 }
-                catch (ArgumentException ex)
+                catch(PjsipErrorException ex)
                 {
                     System.Console.WriteLine(ex.Message);
                 }
-                catch(PjsipErrorException ex)
+                catch(SystemException ex)
                 {
                     System.Console.WriteLine(ex.Message);
                 }

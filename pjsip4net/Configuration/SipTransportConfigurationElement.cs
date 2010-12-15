@@ -5,20 +5,18 @@ namespace pjsip4net.Configuration
 {
     public class SipTransportConfigurationElement : ConfigurationElement
     {
-        private readonly ConfigurationProperty _portProp = new ConfigurationProperty("Port", typeof (int), 5060, null,
-                                                                                     new IntegerValidator(1, 65536,
-                                                                                                          false),
-                                                                                     ConfigurationPropertyOptions.None);
+        private readonly ConfigurationProperty _portProp =
+            new ConfigurationProperty("Port", typeof (int), 5060, null,
+                                      new IntegerValidator(1, 65536, false),
+                                      ConfigurationPropertyOptions.None);
 
         private readonly ConfigurationPropertyCollection _properties;
 
-        private readonly ConfigurationProperty _ttypeProp = new ConfigurationProperty("type", typeof (string), "udp",
-                                                                                      null,
-                                                                                      new CallbackValidator(
-                                                                                          typeof (string),
-                                                                                          ValidateTransportType),
-                                                                                      ConfigurationPropertyOptions.
-                                                                                          IsRequired);
+        private readonly ConfigurationProperty _ttypeProp =
+            new ConfigurationProperty("type", typeof (string), "udp", null,
+                                      new CallbackValidator(typeof (string),
+                                          ValidateTransportType),
+                                      ConfigurationPropertyOptions.IsRequired);
 
         public SipTransportConfigurationElement()
         {

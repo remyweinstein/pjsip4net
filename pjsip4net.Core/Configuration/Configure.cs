@@ -29,7 +29,6 @@ namespace pjsip4net.Core.Configuration
         public Configure()//todo: investigate whether it is possible to give an autofixture an instance of public class with internal ctor
         {
             Container = new SimpleContainer();
-            _tptConfigurator = _defaultTptConfig;
         }
 
         public static Configure Pjsip4Net()
@@ -93,6 +92,11 @@ namespace pjsip4net.Core.Configuration
         internal Tuple<TransportType, TransportConfig> GetConfiguredTransport(ITransportApiProvider transportApiProvider)
         {
             return _tptConfigurator != null ? _tptConfigurator(transportApiProvider) : null;
+        }
+
+        public Tuple<TransportType, TransportConfig> GetDefaultTransport(ITransportApiProvider transportApiProvider)
+        {
+            return _defaultTptConfig(transportApiProvider);
         }
 
         internal IEnumerable<AccountConfig> GetConfiguredAccounts(IAccountApiProvider accountApiProvider)

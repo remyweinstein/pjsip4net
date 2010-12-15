@@ -19,7 +19,7 @@ namespace pjsip4net.Accounts
         internal AccountConfig _config;
         private uint _lockCount;
         private IVoIPTransport _transport;
-        internal bool Default;
+        
         //private IBasicApiProvider _basicApiProvider;
         //private IAccountApiProvider _accountApiProvider;
         private IAccountManagerInternal _manager;
