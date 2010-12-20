@@ -117,14 +117,14 @@ namespace pjsip4net.Calls
                 Helper.GuardNotNull(account);
                 Helper.GuardInRange(0u, MaxCalls - 1, (uint) _activeCalls.Count);
 
-                var result = _objectFactory.Create<Call>();
+                var result = _objectFactory.Create<ICallInternal>();
                 var acc = _accMgr.GetAccount(account.Id);
                 Helper.GuardNotNull(acc);
                 result.SetAccount(acc);
                 using (result.InitializationScope())
-                    result.DestinationUri = destinationUri;
+                    result.SetDestinationUri(destinationUri);
 
-                result.Id = _callApi.MakeCallAndGetId(result.Account.Id, destinationUri, 0);
+                result.SetId(_callApi.MakeCallAndGetId(result.Account.Id, destinationUri, 0));
                 AddCallAndUpdateEaCache(destinationUri, result);
 
                 result.HandleInviteStateChanged();
