@@ -29,6 +29,8 @@ namespace pjsip4net.Interfaces
 
         void Answer(bool accept);
         void Answer(bool accept, string reason);
+        void Hangup();
+        void Hangup(string reason);
         void ConnectToConference();
         void DisconnectFromConference();
         void SendDtmf(string digits);
@@ -45,6 +47,7 @@ namespace pjsip4net.Interfaces
         void HandleInviteStateChanged();
         void HandleMediaStateChanged();
         void SetId(int id);
+        void SetDestinationUri(string uri);
         void SetAccount(IAccountInternal account);
         CallInfo GetCallInfo();
     }

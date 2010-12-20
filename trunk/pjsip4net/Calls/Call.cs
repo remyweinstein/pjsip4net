@@ -224,8 +224,9 @@ namespace pjsip4net.Calls
 
         #region Methods
 
-        internal Call(ICallManagerInternal callManager, ILocalRegistry registry, IConferenceBridge conferenceBridge)
+        public Call(ICallManagerInternal callManager, ILocalRegistry registry, IConferenceBridge conferenceBridge)
         {
+            Id = -1;
             Helper.GuardNotNull(callManager);
             Helper.GuardNotNull(conferenceBridge);
             Helper.GuardNotNull(registry);
@@ -237,7 +238,8 @@ namespace pjsip4net.Calls
             _mediaSession.StateChanged += delegate { OnStateChanged(); };
 
             CallInfo info = GetCallInfo();
-            IsIncoming = info.Role == SipRole.RoleUas;
+            if (info != null) 
+                IsIncoming = info.Role == SipRole.RoleUas;
         }
 
         //public static ICallBuilder New()
@@ -332,6 +334,12 @@ namespace pjsip4net.Calls
         {
             Helper.GuardPositiveInt(id);
             Id = id;
+        }
+
+        public void SetDestinationUri(string uri)
+        {
+            Helper.GuardNotNullStr(uri);
+            DestinationUri = uri;
         }
 
         public void SetAccount(IAccountInternal account)

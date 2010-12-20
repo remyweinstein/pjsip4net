@@ -218,7 +218,8 @@ namespace pjsip.Interop.Services
                 //.ConvertUsing<SoundDeviceInfoConverter>();
             Mapper.CreateMap<pjsua_codec_info, CodecInfo>()//.WithProfile("pjsua2pjsip4net")
                 .ConstructUsing(pci => _container.Get<CodecInfo>())
-                .ForMember(x => x.CodecId, cx => cx.MapFrom(x => x.codec_id));
+                .ForMember(x => x.CodecId, cx => cx.MapFrom(x => x.buf_))
+                .ForMember(x => x.Priority, cx => cx.MapFrom(x => x.priority));
             Mapper.CreateMap<pjsua_buddy_info, BuddyInfo>()//.WithProfile("pjsua2pjsip4net")
                 .ForMember(x => x.Status, cx => cx.MapFrom(x => (BuddyStatus)x.status))
                 .ForMember(x => x.SubState, cx => cx.MapFrom(x => (SubscriptionState)x.sub_state))

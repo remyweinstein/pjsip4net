@@ -122,7 +122,7 @@ namespace pjsip4net.Core.Data
 
         //private pjmedia_codec_param _param;
 
-        internal CodecInfo(IMediaApiProvider mediaApi)
+        public CodecInfo(IMediaApiProvider mediaApi)
         {
             Helper.GuardNotNull(mediaApi);
             _mediaApi = mediaApi;
