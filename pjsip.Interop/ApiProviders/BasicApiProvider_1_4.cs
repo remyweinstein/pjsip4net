@@ -71,6 +71,7 @@ namespace pjsip.Interop.ApiProviders
 
             //etc;
             _mCfg = new pjsua_media_config();
+            PJSUA_DLL.Media.pjsua_media_config_default(_mCfg);
             Helper.GuardError(PJSUA_DLL.Basic.pjsua_init(ua_cfg, l_cfg, _mapper.Map(mediaCfg, _mCfg)));
         }
 
