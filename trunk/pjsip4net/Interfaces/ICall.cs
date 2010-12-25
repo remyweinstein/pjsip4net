@@ -49,6 +49,7 @@ namespace pjsip4net.Interfaces
         void SetId(int id);
         void SetDestinationUri(string uri);
         void SetAccount(IAccountInternal account);
+        void SetAsIncoming();
         CallInfo GetCallInfo();
     }
 }

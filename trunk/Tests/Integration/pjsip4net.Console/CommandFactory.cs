@@ -239,8 +239,7 @@ namespace pjsip4net.Console
         public void Execute()
         {
             System.Console.WriteLine("Active calls");
-            _agent.CallManager.Calls.Each(x => System.Console.WriteLine(x.LocalContact + " -> " + x.RemoteContact
-                                                                        + " " + x.TotalDuration));
+            _agent.CallManager.Calls.Each(x => System.Console.WriteLine(x.ToString(true)));
         }
     }
 

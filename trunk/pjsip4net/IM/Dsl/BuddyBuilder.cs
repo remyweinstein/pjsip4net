@@ -71,7 +71,7 @@ namespace pjsip4net.IM.Dsl
             return buddy;
         }
 
-        protected virtual Buddy CreateBuddy()//todo refactor to objectfactory
+        protected virtual Buddy CreateBuddy()//todo refactor to IBuddy
         {
             return _objectFactory.Create<Buddy>();
         }

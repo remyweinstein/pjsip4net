@@ -350,6 +350,11 @@ namespace pjsip4net.Calls
                 _accountLock = _account.Lock();
         }
 
+        public void SetAsIncoming()
+        {
+            IsIncoming = true;
+        }
+
         public virtual CallInfo GetCallInfo()
         {
             GuardDisposed();

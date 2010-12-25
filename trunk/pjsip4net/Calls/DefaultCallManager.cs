@@ -254,8 +254,12 @@ namespace pjsip4net.Calls
                 if (_activeCalls.Count < MaxCalls)
                 {
                     var call = _objectFactory.Create<ICallInternal>();
-                    call.SetId(e.CallId);
-                    call.SetAccount(account);
+                    using (call.InitializationScope())
+                    {
+                        call.SetId(e.CallId);
+                        call.SetAccount(account);
+                        call.SetAsIncoming();
+                    }
                     AddCallAndUpdateEaCache(account.AccountId, call);
                     Monitor.Exit(_lock);
                     if (_localRegistry.Config.AutoAnswer)

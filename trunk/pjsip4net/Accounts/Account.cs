@@ -277,35 +277,6 @@ namespace pjsip4net.Accounts
                 var info = GetAccountInfo();
                 return !Equals(info, null) ? (bool?) (info.OnlineStatus == 1) : null;
             }
-            //set
-            //{
-            //    GuardDisposed();
-            //    if (IsRegistered)
-            //    {
-            //        //Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi().pjsua_acc_set_online_status(Id,
-            //        //                                                                                      Convert.
-            //        //                                                                                          ToInt32(
-            //        //                                                                                          value.
-            //        //                                                                                              Value)));
-            //        pjrpid_element rpid = new pjrpid_element
-            //                                  {
-            //                                      activity = pjrpid_activity.PjrpidActivityUnknown,
-            //                                      note = new pj_str_t(value.Value ? "online" : "offline")
-            //                                  };
-            //        Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetAccountApi()
-            //            .pjsua_acc_set_online_status2(Id, Convert.ToInt32(value.Value), ref rpid));
-            //        //if (!value.Value)
-            //        //{
-            //        //    pj_str_t stateStr = new pj_str_t();
-            //        //    pj_str_t reason = new pj_str_t();
-            //        //    Helper.GuardError(SipUserAgent.Instance.ApiFactory.GetImApi().pjsua_pres_notify(Id, IntPtr.Zero,
-            //        //                                                                           pjsip_evsub_state.
-            //        //                                                                               PJSIP_EVSUB_STATE_TERMINATED,
-            //        //                                                                           ref stateStr, ref reason,
-            //        //                                                                           0, null));
-            //        //}
-            //    }
-            //}
         }
 
         public string OnlineStatusText
