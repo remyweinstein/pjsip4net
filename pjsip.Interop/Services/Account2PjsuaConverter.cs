@@ -34,7 +34,7 @@ namespace pjsip.Interop.Services
             rx.require_100rel = System.Convert.ToInt32(x.Require100Rel);
             rx.require_timer = System.Convert.ToInt32(x.RequireTimer);
             rx.srtp_secure_signaling = x.SrtpSecureSignaling;
-            //rx.timer_setting = x.T
+            //rx.timer_setting = x.
             rx.transport_id = x.TransportId;
             rx.use_srtp = (pjmedia_srtp_use) x.UseSrtp;
             return rx;
