@@ -66,6 +66,7 @@ namespace pjsip4net.Calls
         public event EventHandler<DtmfEventArgs> IncomingDtmfDigit = delegate { };
         public event EventHandler<RingEventArgs> Ring = delegate { };
         public event EventHandler<CallTransferEventArgs> CallTransfer = delegate { };
+        public event EventHandler<CallRedirectedEventArgs> CallRedirected = delegate { };
 
         public ReadOnlyCollection<ICall> Calls
         {
@@ -186,7 +187,10 @@ namespace pjsip4net.Calls
             _eventsProvider.Subscribe<DtmfRecieved>(e => OnDtmfDigit(e));
             _eventsProvider.Subscribe<CallTransferRequested>(e => OnCallTransfer(e));
             _eventsProvider.Subscribe<CallTransferStatusChanged>(e => OnCallTransferStatus(e));
+            _eventsProvider.Subscribe<CallRedirected>(e => OnCallRedirected(e));
         }
+
+        
 
         public void RaiseCallStateChanged(ICallInternal call)
         {
@@ -342,6 +346,18 @@ namespace pjsip4net.Calls
         public void OnCallTransferStatus(CallTransferStatusChanged e)
         {
             e.Continue = true;
+        }
+
+        public void OnCallRedirected(CallRedirected args)
+        {
+            var ea = new CallRedirectedEventArgs()
+                         {
+                             CallId = args.Id,
+                             Target = args.Target,
+                             Option = args.Option
+                         };
+            CallRedirected(this, ea);
+            args.Option = ea.Option;
         }
 
         private void AddCallAndUpdateEaCache(string destinationUri, ICallInternal call)

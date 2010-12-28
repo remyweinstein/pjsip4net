@@ -1,8 +1,10 @@
 using System;
 using pjsip.Interop;
+using pjsip4net.Calls;
 using pjsip4net.Configuration;
 using pjsip4net.Core;
 using pjsip4net.Core.Configuration;
+using pjsip4net.Core.Data;
 
 namespace pjsip4net.Console
 {
@@ -12,6 +14,7 @@ namespace pjsip4net.Console
         {
             var ua = Configure.Pjsip4Net().FromConfig().WithVersion_1_4().Build().Start();
             ua.Log += (s, e) => System.Console.WriteLine(e.Data);
+            ua.CallManager.CallRedirected += CallManager_CallRedirected;
             var factory = new CommandFactory(ua);
 
             while (true)
@@ -34,6 +37,11 @@ namespace pjsip4net.Console
                 }
             }
             ua.Destroy();
+        }
+
+        static void CallManager_CallRedirected(object sender, CallRedirectedEventArgs e)
+        {
+            e.Option = RedirectOption.Accept;
         }
     }
 }
