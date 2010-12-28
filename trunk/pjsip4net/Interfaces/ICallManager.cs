@@ -17,6 +17,7 @@ namespace pjsip4net.Interfaces
         event EventHandler<DtmfEventArgs> IncomingDtmfDigit;
         event EventHandler<RingEventArgs> Ring;
         event EventHandler<CallTransferEventArgs> CallTransfer;
+        event EventHandler<CallRedirectedEventArgs> CallRedirected;
         ICall MakeCall(string destinationUri);
         ICall MakeCall(IAccount account, string destinationUri);
         void HangupAll();

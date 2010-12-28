@@ -44,6 +44,7 @@
     <Compile Include="Accounts\DefaultAccountManager.cs" />
     <Compile Include="Accounts\AccountState.cs" />
     <Compile Include="Accounts\AccountStateChangedEventArgs.cs" />
+    <Compile Include="Calls\CallRedirectedEventArgs.cs" />
     <Compile Include="Configuration\BuildUserAgent.cs" />
     <Compile Include="Configuration\ConfigureFromConfig.cs" />
     <Compile Include="Configuration\DefaultAccountComponentConfigurator.cs" />
