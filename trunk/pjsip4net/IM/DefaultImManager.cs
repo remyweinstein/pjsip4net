@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using pjsip4net.Accounts;
-using pjsip4net.Calls;
 using pjsip4net.Core;
 using pjsip4net.Core.Data.Events;
 using pjsip4net.Core.Interfaces.ApiProviders;
@@ -14,7 +12,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM
 {
-    internal class DefaultImManager : Initializable, IImManager
+    internal class DefaultImManager : Initializable, IImManagerInternal
     {
         #region Private Data
 
@@ -64,6 +62,11 @@ namespace pjsip4net.IM
         public event EventHandler<PagerEventArgs> IncomingMessage = delegate { };
         public event EventHandler<TypingEventArgs> TypingAlert = delegate { };
         public event EventHandler<NatEventArgs> NatDetected = delegate { };
+
+        public IIMApiProvider Provider
+        {
+            get { return _imApi; }
+        }
 
         #endregion
 
@@ -115,18 +118,16 @@ namespace pjsip4net.IM
 
         private void OnBuddyState(BuddyStateChanged e)
         {
-            Debug.WriteLine("SipUa.OnBuddyState entering. Thread id = " + Thread.CurrentThread.ManagedThreadId);
             lock (_instLock)
             {
-                Debug.WriteLine("SipUa.OnBuddyState locked");
-                Debug.WriteLine("SipUa.OnBuddyState about to raise event");
                 if (_buddies.ContainsKey(e.Id) && _buddies[e.Id] != null)
                     RaiseBuddyState(_buddies[e.Id]);
                 else if (_pendingBuddy != null) //this is a new buddy it still does not have an Id
+                {
+                    _pendingBuddy.SetId(e.Id);
                     RaiseBuddyState(_pendingBuddy);
-                Debug.WriteLine("SipUa.OnBuddyState raised event");
+                }
             }
-            Debug.WriteLine("SipUa.OnBuddyState unlocked");
         }
 
         private void RaiseBuddyState(IBuddyInternal buddy)
@@ -156,45 +157,38 @@ namespace pjsip4net.IM
             Debug.WriteLine("Incoming SUBSCRIBE");
         }
 
-        public void RegisterBuddy(IBuddy buddy)
+
+        public void RegisterBuddy(IBuddyInternal buddy)
         {
-            Debug.WriteLine("SipUa.RegiterBuddy entering. Thread id = " + Thread.CurrentThread.ManagedThreadId);
-            var b = buddy.As<IBuddyInternal>();
-            if (b != null)
+            if (buddy != null)
                 lock (_instLock)
                 {
-                    Debug.WriteLine("SipUa.RegiterBuddy Locked");
                     try
                     {
-                        _pendingBuddy = b;
+                        _pendingBuddy = buddy;
                         int id = -1;
-                        Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_add");
-                        id = _imApi.AddBuddyAndGetId(b.Config);
-                        Debug.WriteLine("SipUa.RegiterBuddy added buddy");
-                        b.SetId(id);
-                        _buddies.Add(b.Id, b);
-                        Debug.WriteLine("SipUa.RegiterBuddy About to call buddy_subscribe_pres");
-                        _imApi.SubscribeBuddyPresence(id);
-                        Debug.WriteLine("SipUa.RegiterBuddy subscribed presence");
+                        id = _imApi.AddBuddyAndGetId(buddy.Config);
+                        buddy.SetId(id);
+                        _buddies.Add(buddy.Id, buddy);
+                        if (buddy.MonitoringPresence)
+                            _imApi.SubscribeBuddyPresence(id);
                     }
                     finally
                     {
                         _pendingBuddy = null;
                     }
                 }
-            Debug.WriteLine("SipUa.RegiterBuddy unlocked");
         }
 
-        public void UnregisterBuddy(IBuddy buddy)
+        public void UnregisterBuddy(IBuddyInternal buddy)
         {
-            var b = buddy.As<IBuddyInternal>();
             lock (_instLock)
             {
                 if (buddy.Id != -1)
                 {
                     _imApi.DeleteBuddy(buddy.Id);
                     _buddies.Remove(buddy.Id);
-                    b.InternalDispose();
+                    buddy.InternalDispose();
                 }
             }
         }
@@ -226,6 +220,11 @@ namespace pjsip4net.IM
             Helper.GuardNotNull(dialog);
             Helper.GuardPositiveInt(dialog.Id);
             _callApi.SendTypingInd(dialog.Id, isTyping);
+        }
+
+        public void DumpSubscription(bool verbose)
+        {
+            _imApi.DumpPresence(verbose);
         }
 
         public void SendMessageInDialog(ICall dialog, string body)

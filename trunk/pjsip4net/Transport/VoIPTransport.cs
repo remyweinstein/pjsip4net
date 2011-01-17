@@ -185,7 +185,7 @@ namespace pjsip4net.Transport
 
         #endregion
 
-        #region Implementation of IEquatable<IIdentifiable<VoIPTransport>>
+        #region Implementation of IEquatable<IIdentifiable<IVoIPTransport>>
 
         public bool Equals(IIdentifiable<IVoIPTransport> other)
         {
@@ -194,7 +194,7 @@ namespace pjsip4net.Transport
 
         public virtual bool DataEquals(IVoIPTransport other)
         {
-            return Config.Port.Equals(other.Config.Port);
+            return Config.Port.Equals(other.Config.Port) && TransportType.Equals(other.TransportType);
         }
 
         #endregion

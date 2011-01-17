@@ -16,6 +16,7 @@ namespace pjsip4net.Interfaces
         BuddyActivity Activity { get; }
         string ActivityNote { get; }
         void UpdatePresenceState();
+        void Unregister();
     }
 
     internal interface IBuddyInternal : IBuddy, IResource

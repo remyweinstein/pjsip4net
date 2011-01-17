@@ -10,12 +10,12 @@ namespace pjsip4net.IM.Dsl
         private string _body;
         private IAccount _from;
         private ICall _dialog;
-        private IImManager _userAgent;
+        private IImManager _manager;
 
-        public DefaultMessageBuilder(IImManager userAgent)
+        public DefaultMessageBuilder(IImManager manager)
         {
-            Helper.GuardNotNull(userAgent);
-            _userAgent = userAgent;
+            Helper.GuardNotNull(manager);
+            _manager = manager;
         }
 
         public IMessageBuilder To(string extension)
@@ -62,25 +62,25 @@ namespace pjsip4net.IM.Dsl
         public void Send()
         {
             if (_dialog == null)
-                _userAgent.SendMessage(_from, _body, _builder.ToString());
+                _manager.SendMessage(_from, _body, _builder.ToString());
             else
-                _userAgent.SendMessageInDialog(_dialog, _body);
+                _manager.SendMessageInDialog(_dialog, _body);
         }
 
         public void SendTyping()
         {
             if (_dialog == null)
-                _userAgent.SendTyping(_from, _builder.ToString(), true);
+                _manager.SendTyping(_from, _builder.ToString(), true);
             else
-                _userAgent.SendTypingInDialog(_dialog, true);
+                _manager.SendTypingInDialog(_dialog, true);
         }
         
         public void SendFinishedTyping()
         {
             if (_dialog == null)
-                _userAgent.SendTyping(_from, _builder.ToString(), false);
+                _manager.SendTyping(_from, _builder.ToString(), false);
             else
-                _userAgent.SendTypingInDialog(_dialog, false);
+                _manager.SendTypingInDialog(_dialog, false);
         }
     }
 

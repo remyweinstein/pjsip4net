@@ -12,7 +12,7 @@ namespace pjsip4net.Calls
         private readonly ICallManagerInternal _callManager;
         private readonly IConferenceBridge _conferenceBridge;
 
-        public MediaSession(Call call, ILocalRegistry localRegistry,
+        public MediaSession(ICallInternal call, ILocalRegistry localRegistry,
             ICallManagerInternal callManager, IConferenceBridge conferenceBridge)
         {
             Helper.GuardNotNull(call);
@@ -26,12 +26,12 @@ namespace pjsip4net.Calls
             _conferenceBridge = conferenceBridge;
         }
 
-        public Call Call
+        public ICallInternal Call
         {
             get
             {
                 if (_call.IsAlive)
-                    return (Call) _call.Target;
+                    return (ICallInternal)_call.Target;
                 throw new ObjectDisposedException("call");
             }
         }

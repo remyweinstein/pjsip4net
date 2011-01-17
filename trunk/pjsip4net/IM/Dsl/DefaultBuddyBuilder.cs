@@ -4,32 +4,33 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM.Dsl
 {
-    internal class BuddyBuilder
+    internal class DefaultBuddyBuilder : IBuddyBuilder
     {
         private string _name;
         private string _port;
         private string _domain;
         private TransportType _transport;
         private bool _subscribe;
-        private IImManager _userAgent;
+        private IImManagerInternal _imManager;
         private IObjectFactory _objectFactory;
 
-        public BuddyBuilder(IImManager userAgent, IObjectFactory objectFactory)
+        public DefaultBuddyBuilder(IImManagerInternal imManager, IObjectFactory objectFactory)
         {
-            Helper.GuardNotNull(userAgent);
+            Helper.GuardNotNull(imManager);
             Helper.GuardNotNull(objectFactory);
-            _userAgent = userAgent;
+            _imManager = imManager;
             _objectFactory = objectFactory;
+            _transport = TransportType.Udp;
         }
 
-        public BuddyBuilder WithName(string name)
+        public IBuddyBuilder WithName(string name)
         {
             Helper.GuardNotNullStr(name);
             _name = name;
             return this;
         }
 
-        public BuddyBuilder Through(string port)
+        public IBuddyBuilder Through(string port)
         {
             Helper.GuardNotNullStr(port);
             Helper.GuardPositiveInt(int.Parse(port));
@@ -37,48 +38,51 @@ namespace pjsip4net.IM.Dsl
             return this;
         }
 
-        public BuddyBuilder At(string domain)
+        public IBuddyBuilder At(string domain)
         {
             Helper.GuardNotNullStr(domain);
             _domain = domain;
             return this;
         }
 
-        public BuddyBuilder Via(TransportType transport)
+        public IBuddyBuilder Via(TransportType transport)
         {
             _transport = transport;
             return this;
         }
 
-        public BuddyBuilder Subscribing()
+        public IBuddyBuilder Subscribing()
         {
             _subscribe = true;
             return this;
         }
 
-        public Buddy Register()
+        public IBuddy Register()
         {
             Helper.GuardNotNullStr(_name);
             //Helper.GuardNotNullStr(_domain);
             var buddy = CreateBuddy();
-            var uriBuilder = new SipUriBuilder().AppendExtension(_name).AppendDomain(_domain)
+            using (buddy.InitializationScope())
+            {
+                var uriBuilder = new SipUriBuilder().AppendExtension(_name).AppendDomain(_domain)
                 .AppendPort(string.IsNullOrEmpty(_port) ? "5060" : _port).AppendTransportSuffix(
                 _transport);
-            buddy.Uri = uriBuilder.ToString();
-            buddy.Subscribe = _subscribe;
+                buddy.Uri = uriBuilder.ToString();
+                buddy.Subscribe = _subscribe;
+            }
 
             InternalRegister(buddy);
             return buddy;
         }
 
-        protected virtual Buddy CreateBuddy()//todo refactor to IBuddy
+        protected virtual IBuddyInternal CreateBuddy()
         {
-            return _objectFactory.Create<Buddy>();
+            return _objectFactory.Create<IBuddyInternal>();
         }
 
-        private void InternalRegister(Buddy buddy)
+        private void InternalRegister(IBuddyInternal buddy)
         {
-            _userAgent.RegisterBuddy(buddy);
+            _imManager.RegisterBuddy(buddy);
         }
     }
 }

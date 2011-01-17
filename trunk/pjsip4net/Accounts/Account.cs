@@ -10,7 +10,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Accounts
 {
-    internal class Account : Initializable, IAccountInternal, IIdentifiable<Account>
+    internal class Account : Initializable, IAccountInternal, IIdentifiable<IAccount>
     {
         private bool _isLocal;
         private readonly object _lock = new object();
@@ -543,12 +543,12 @@ namespace pjsip4net.Accounts
 
         #region Implementation of IEquatable<IIdentifiable<Account>>
 
-        public bool Equals(IIdentifiable<Account> other)
+        public bool Equals(IIdentifiable<IAccount> other)
         {
             return EqualsTemplate.Equals(this, other);
         }
 
-        bool IIdentifiable<Account>.DataEquals(Account other)
+        bool IIdentifiable<IAccount>.DataEquals(IAccount other)
         {
             return AccountId.Equals(other.AccountId);
         }

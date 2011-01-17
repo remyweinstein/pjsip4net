@@ -91,13 +91,14 @@ namespace pjsip4net
         protected override void CleanUp()
         {
             base.CleanUp();
-            _localRegistry.SipTransport.InternalDispose();
-            _localRegistry.RtpTransport.InternalDispose();
-
+            
             CallManager.HangupAll();
             var mgr = AccountManager.As<IAccountManagerInternal>();
             if (mgr != null)
                 mgr.UnRegisterAllAccounts();
+
+            _localRegistry.SipTransport.InternalDispose();
+            _localRegistry.RtpTransport.InternalDispose();
 
             ImManager = null;
             CallManager = null;

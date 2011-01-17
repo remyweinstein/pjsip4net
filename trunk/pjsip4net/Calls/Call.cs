@@ -9,7 +9,7 @@ using pjsip4net.Interfaces;
 
 namespace pjsip4net.Calls
 {
-    internal class Call : Initializable, ICallInternal, IIdentifiable<Call>
+    internal class Call : Initializable, ICallInternal, IIdentifiable<ICall>
     {
         #region Private data
 
@@ -388,12 +388,12 @@ namespace pjsip4net.Calls
             _callManager.RaiseCallStateChanged(this);
         }
 
-        public bool Equals(IIdentifiable<Call> other)
+        public bool Equals(IIdentifiable<ICall> other)
         {
             return EqualsTemplate.Equals(this, other);
         }
 
-        public bool DataEquals(Call other)
+        public bool DataEquals(ICall other)
         {
             return true;
         }

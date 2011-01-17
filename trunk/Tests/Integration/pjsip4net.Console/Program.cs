@@ -14,8 +14,10 @@ namespace pjsip4net.Console
         {
             var ua = Configure.Pjsip4Net().FromConfig().WithVersion_1_4().Build().Start();
             ua.Log += (s, e) => System.Console.WriteLine(e.Data);
+            ua.ImManager.IncomingMessage += ImManager_IncomingMessage;
             ua.CallManager.CallRedirected += CallManager_CallRedirected;
             var factory = new CommandFactory(ua);
+            factory.Create("?").Execute();
 
             while (true)
             {
@@ -37,6 +39,11 @@ namespace pjsip4net.Console
                 }
             }
             ua.Destroy();
+        }
+
+        static void ImManager_IncomingMessage(object sender, PagerEventArgs e)
+        {
+            System.Console.WriteLine("Message from " + e.From + ", text: " + e.Body);
         }
 
         static void CallManager_CallRedirected(object sender, CallRedirectedEventArgs e)

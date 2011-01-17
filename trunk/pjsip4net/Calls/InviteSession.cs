@@ -10,7 +10,7 @@ namespace pjsip4net.Calls
         private readonly ICallManagerInternal _callManager;
         private WeakReference _call;
 
-        public InviteSession(Call owner, ICallManagerInternal callManager)
+        public InviteSession(ICallInternal owner, ICallManagerInternal callManager)
         {
             _callManager = callManager;
             Helper.GuardNotNull(owner);
@@ -19,12 +19,12 @@ namespace pjsip4net.Calls
             _state = owner.IsIncoming ? (AbstractState) new IncomingInviteState(this) : new NullInviteState(this);
         }
 
-        public Call Call
+        public ICallInternal Call
         {
             get
             {
                 if (_call.IsAlive)
-                    return (Call) _call.Target;
+                    return (ICallInternal) _call.Target;
                 throw new ObjectDisposedException("call");
             }
         }
