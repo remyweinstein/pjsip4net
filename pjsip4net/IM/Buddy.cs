@@ -2,16 +2,15 @@
 using pjsip4net.Core;
 using pjsip4net.Core.Data;
 using pjsip4net.Core.Interfaces;
-using pjsip4net.Core.Interfaces.ApiProviders;
 using pjsip4net.Core.Utils;
 using pjsip4net.Interfaces;
 
 namespace pjsip4net.IM
 {
-    public class Buddy : Initializable, IBuddyInternal, IIdentifiable<Buddy>
+    internal class Buddy : Initializable, IBuddyInternal, IIdentifiable<IBuddy>
     {
         private readonly object _lock = new object();
-        private IIMApiProvider _imApi;
+        private readonly IImManagerInternal _manager;
         internal BuddyConfig _config;
 
         #region Properties
@@ -72,11 +71,11 @@ namespace pjsip4net.IM
 
         #region Methods
 
-        public Buddy(IIMApiProvider imApi)
+        public Buddy(IImManagerInternal manager)
         {
-            Helper.GuardNotNull(imApi);
-            _imApi = imApi;
-            _config = _imApi.GetDefaultConfig();
+            Helper.GuardNotNull(manager);
+            _manager = manager;
+            _config = _manager.Provider.GetDefaultConfig();
             Id = -1;
         }
 
@@ -89,7 +88,13 @@ namespace pjsip4net.IM
         public void UpdatePresenceState()
         {
             GuardDisposed();
-            _imApi.UpdatePresence(Id);
+            _manager.Provider.UpdatePresence(Id);
+        }
+
+        public void Unregister()
+        {
+            GuardDisposed();
+            _manager.UnregisterBuddy(this);
         }
 
         protected override void CleanUp()
@@ -111,11 +116,11 @@ namespace pjsip4net.IM
                 if (Id != -1)
                     try
                     {
-                        return _imApi.GetInfo(Id);
+                        return _manager.Provider.GetInfo(Id);
                     }
                     catch (PjsipErrorException)
                     {
-                        return _imApi.GetInfo(Id);
+                        return _manager.Provider.GetInfo(Id);
                     }
                 return null;
             }
@@ -142,14 +147,14 @@ namespace pjsip4net.IM
 
         #endregion
 
-        #region Implementation of IEquatable<IIdentifiable<Buddy>>
+        #region Implementation of IEquatable<IIdentifiable<IBuddy>>
 
-        public bool Equals(IIdentifiable<Buddy> other)
+        public bool Equals(IIdentifiable<IBuddy> other)
         {
             return EqualsTemplate.Equals(this, other);
         }
 
-        bool IIdentifiable<Buddy>.DataEquals(Buddy other)
+        bool IIdentifiable<IBuddy>.DataEquals(IBuddy other)
         {
             return Uri.Equals(other.Uri);
         }

@@ -60,7 +60,7 @@
     <Compile Include="Accounts\RegistrationSession.cs" />
     <Compile Include="IM\Buddy.cs" />
     <Compile Include="IM\BuddyStateChangedEventArgs.cs" />
-    <Compile Include="IM\Dsl\BuddyBuilder.cs" />
+    <Compile Include="IM\Dsl\DefaultBuddyBuilder.cs" />
     <Compile Include="Calls\Call.cs" />
     <Compile Include="Calls\Dsl\DefaultCallBuilder.cs" />
     <Compile Include="Calls\DefaultCallManager.cs" />
@@ -68,6 +68,7 @@
     <Compile Include="Calls\CallTransferEventArgs.cs" />
     <Compile Include="Calls\DtmfEventArgs.cs" />
     <Compile Include="Interfaces\IBuddy.cs" />
+    <Compile Include="Interfaces\IBuddyBuilder.cs" />
     <Compile Include="Interfaces\ICall.cs" />
     <Compile Include="Interfaces\ICallManager.cs" />
     <Compile Include="Calls\IncomingCallEventArgs.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="Configuration\TurnElement.cs" />
     <Compile Include="Interfaces\IAccountBuilder.cs" />
     <Compile Include="Interfaces\ICallBuilder.cs" />
-    <Compile Include="IM\Dsl\MessageBuilder.cs" />
+    <Compile Include="IM\Dsl\DefaultMessageBuilder.cs" />
     <Compile Include="Interfaces\IConferenceBridge.cs" />
     <Compile Include="Interfaces\ILocalRegistry.cs" />
     <Compile Include="Interfaces\IMessageBuilder.cs" />
