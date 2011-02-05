@@ -13,7 +13,7 @@ namespace pjsip4net.Configuration
             Helper.GuardNotNull(container);
             container.RegisterAsSingleton<IAccountManager, DefaultAccountManager>()
                 .RegisterAsSingleton(container.Get<IAccountManager>() as IAccountManagerInternal)
-                .Register<IAccountBuilder, AccountBuilder>()
+                .Register<IAccountBuilder, DefaultAccountBuilder>()
                 .Register<IAccountInternal, Account>();
         }
     }

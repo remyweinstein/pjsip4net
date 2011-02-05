@@ -1,4 +1,6 @@
 using System;
+using log4net;
+using log4net.Config;
 using pjsip.Interop;
 using pjsip4net.Calls;
 using pjsip4net.Configuration;
@@ -10,10 +12,14 @@ namespace pjsip4net.Console
 {
     public class Program
     {
+        private static ILog _logger;
+
         public static void Main(string[] args)
         {
+            XmlConfigurator.Configure();
+            _logger = LogManager.GetLogger("root");
             var ua = Configure.Pjsip4Net().FromConfig().WithVersion_1_4().Build().Start();
-            ua.Log += (s, e) => System.Console.WriteLine(e.Data);
+            ua.Log += Log;
             ua.ImManager.IncomingMessage += ImManager_IncomingMessage;
             ua.CallManager.CallRedirected += CallManager_CallRedirected;
             var factory = new CommandFactory(ua);
@@ -39,6 +45,29 @@ namespace pjsip4net.Console
                 }
             }
             ua.Destroy();
+        }
+
+        private static void Log(object sender, LogEventArgs e)
+        {
+            switch (e.Level)
+            {
+                case 5:
+                case 4:
+                    _logger.Debug(e.Data);
+                    break;
+                case 3:
+                    _logger.Info(e.Data);
+                    break;
+                case 2:
+                    _logger.Warn(e.Data);
+                    break;
+                case 1:
+                    _logger.Error(e.Data);
+                    break;
+                case 0:
+                    _logger.Fatal(e.Data);
+                    break;
+            }
         }
 
         static void ImManager_IncomingMessage(object sender, PagerEventArgs e)

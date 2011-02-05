@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\Account.cs" />
-    <Compile Include="Accounts\Dsl\AccountBuilder.cs" />
+    <Compile Include="Accounts\Dsl\DefaultAccountBuilder.cs" />
     <Compile Include="Accounts\DefaultAccountManager.cs" />
     <Compile Include="Accounts\AccountState.cs" />
     <Compile Include="Accounts\AccountStateChangedEventArgs.cs" />
