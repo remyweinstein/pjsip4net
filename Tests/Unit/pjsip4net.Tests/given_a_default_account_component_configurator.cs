@@ -29,7 +29,7 @@ namespace pjsip4net.Tests
         {
             when_configure_called();
             _container.Verify(
-                x => x.Register<IAccountBuilder, AccountBuilder>(), Times.Exactly(1));
+                x => x.Register<IAccountBuilder, DefaultAccountBuilder>(), Times.Exactly(1));
         }
     }
 }

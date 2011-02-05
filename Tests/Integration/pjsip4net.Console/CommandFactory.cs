@@ -23,6 +23,7 @@ namespace pjsip4net.Console
             _parser.RegisterArgumentsForCommand<NullArguments>("devices");
             _parser.RegisterArgumentsForCommand<NullArguments>("calls");
             _parser.RegisterArgumentsForCommand<CallArguments>("makecall");
+            _parser.RegisterArgumentsForCommand<DtmfArguments>("dtmf");
             _parser.RegisterArgumentsForCommand<IdArguments>("hangupcall");
             _parser.RegisterArgumentsForCommand<NullArguments>("buddies");
             _parser.RegisterArgumentsForCommand<RegisterBuddyArguments>("registerbuddy");

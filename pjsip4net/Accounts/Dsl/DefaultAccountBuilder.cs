@@ -7,7 +7,7 @@ using TransportType=pjsip4net.Core.TransportType;
 
 namespace pjsip4net.Accounts.Dsl
 {
-    internal class AccountBuilder : IAccountBuilder
+    internal class DefaultAccountBuilder : IAccountBuilder
     {
         protected bool _default;
         protected string _login;
@@ -17,11 +17,11 @@ namespace pjsip4net.Accounts.Dsl
         protected string _registrarDomain;
         protected uint _regTimeout;
         protected IVoIPTransport _transport;
-        private IObjectFactory _objectFactory;
-        private IAccountManagerInternal _accountManager;
+        private readonly IObjectFactory _objectFactory;
+        private readonly IAccountManagerInternal _accountManager;
         private readonly ILocalRegistry _localRegistry;
 
-        public AccountBuilder(IObjectFactory objectFactory, IAccountManagerInternal accountManager, ILocalRegistry localRegistry)
+        public DefaultAccountBuilder(IObjectFactory objectFactory, IAccountManagerInternal accountManager, ILocalRegistry localRegistry)
         {
             Helper.GuardNotNull(objectFactory);
             Helper.GuardNotNull(accountManager);

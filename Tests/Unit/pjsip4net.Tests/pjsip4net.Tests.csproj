@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountBuilderTests.cs" />
+    <Compile Include="Accounts\given_an_account_builder.cs" />
     <Compile Include="AccountTests.cs" />
     <Compile Include="_base.cs" />
     <Compile Include="CallBuilderTests.cs" />

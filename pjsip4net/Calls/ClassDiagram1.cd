@@ -13,30 +13,31 @@
       <Compartment Name="Fields" Collapsed="true" />
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
+    <AssociationLine Name="_mediaSession" Type="pjsip4net.Calls.MediaSession">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="2.029" Y="0.079" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>GUkCEQASBaBAQgAkkIAIIAABAApAEIgAEAAhAkAAUEA=</HashCode>
+      <HashCode>GUkCEAASBaBAYgAkkIAAIAABIApAEKgAEAAhAkAAUEw=</HashCode>
       <FileName>Calls\Call.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Field Name="_mediaSession" />
       <Field Name="_inviteSession" />
-      <Property Name="Account" />
     </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="pjsip4net.Calls.InviteSession">
-    <Position X="8" Y="2.5" Width="1.5" />
+    <Position X="8.5" Y="2.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAEAQEAAACAAAAABAAAAAAAAAAAAAAAAAAAgAAAAAAQ=</HashCode>
+      <HashCode>AAEAQEAAACAAAAABCAAAAAAAAAAAACAAAAAgAAAAAAQ=</HashCode>
       <FileName>Calls\InviteSession.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Call" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="pjsip4net.Calls.NullInviteState" Collapsed="true">
@@ -88,13 +89,6 @@
       <FileName>Calls\InviteState.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="pjsip4net.Utils.AbstractState&lt;T&gt;" Collapsed="true">
-    <Position X="9" Y="5.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Utils\AbstractState.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="pjsip4net.Calls.MediaSession">
     <Position X="10.5" Y="2.5" Width="1.5" />
     <Compartments>
@@ -102,12 +96,9 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAQAAAASAAAAABEAAAAAAAAAAACAgAAAAAAAAAEAA=</HashCode>
+      <HashCode>AAAAQAQgASAAAAABGAAAAAAAAAAACCgAAIAQAAAAEAA=</HashCode>
       <FileName>Calls\MediaSession.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Call" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="pjsip4net.Calls.NoneMediaState" Collapsed="true">
@@ -151,27 +142,18 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AABaAQA6ACAABQBmggAIIAQAEAKBgAAoKQGEBNJAQAI=</HashCode>
+      <HashCode>AABbAQA6AiAApABmggAIAQQAEAKAgAAoKQGEANZAUAA=</HashCode>
       <FileName>Accounts\Account.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="pjsip4net.Utils.StateMachine" Collapsed="true">
-    <Position X="9.25" Y="1.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAABAAABAAAAAAACAAAAAAAAAAAAAAAAABAACA=</HashCode>
-      <FileName>Utils\StateMachine.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="_state" />
-    </ShowAsAssociation>
+  <Class Name="pjsip4net.Core.Utils.AbstractState&lt;T&gt;" Collapsed="true">
+    <Position X="6.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier />
   </Class>
-  <Class Name="pjsip4net.Utils.AbstractState" Collapsed="true">
-    <Position X="9" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA=</HashCode>
-      <FileName>Utils\AbstractState.cs</FileName>
-    </TypeIdentifier>
+  <Class Name="pjsip4net.Core.Utils.AbstractState" Collapsed="true">
+    <Position X="4" Y="5.75" Width="1.5" />
+    <TypeIdentifier />
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

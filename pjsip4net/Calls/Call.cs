@@ -18,7 +18,7 @@ namespace pjsip4net.Calls
         private readonly ICallManagerInternal _callManager;
         private IAccountInternal _account;
         private IDisposable _accountLock;
-        internal InviteSession _inviteSession;
+        private readonly InviteSession _inviteSession;
 
         #endregion
 
@@ -355,7 +355,7 @@ namespace pjsip4net.Calls
             IsIncoming = true;
         }
 
-        public virtual CallInfo GetCallInfo()
+        public CallInfo GetCallInfo()
         {
             GuardDisposed();
             //lock (_lock)
