@@ -36,8 +36,12 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionVersion.cs">
+      <Link>SolutionVersion.cs</Link>
+    </Compile>
     <Compile Include="Accounts\Account.cs" />
     <Compile Include="Accounts\Dsl\AccountBuilder.cs" />
     <Compile Include="Accounts\DefaultAccountManager.cs" />
@@ -98,7 +102,6 @@
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="Media\DefaultConferenceBridge.cs" />
     <Compile Include="Interfaces\IMediaManager.cs" />
-    <Compile Include="Media\ISlotVisitor.cs" />
     <Compile Include="Media\MediaComponentConfigurator.cs" />
     <Compile Include="Media\DefaultMediaManager.cs" />
     <Compile Include="Media\SoundDevice.cs" />

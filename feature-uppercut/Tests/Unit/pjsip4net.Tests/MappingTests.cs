@@ -1,8 +1,8 @@
-using AutoMapper;
-using NUnit.Framework;
-//using pjsip.Interop.Services;
-using pjsip4net.Core.Interfaces;
-using Rhino.Mocks;
+//using AutoMapper;
+//using NUnit.Framework;
+////using pjsip.Interop.Services;
+//using pjsip4net.Core.Interfaces;
+//using Rhino.Mocks;
 
 namespace pjsip4net.Tests
 {
